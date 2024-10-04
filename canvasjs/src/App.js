@@ -18,12 +18,23 @@ function toDataPoints2(dps, x, y) {
 }
 // Data points
 var y = ndarray(new Float32Array(Array.from({ length: 100 }, () => Math.random() * 10)), [100]);
+ops.mulseq(y, 0.1);
 var x = Array.from({ length: y.shape[0] }, (_, i) => i + 1);
 
 // Square wave kernel
 var kernel = ndarray(new Float32Array(10), [10]);
 ops.assigns(kernel, 1);
 ops.divseq(kernel, kernel.shape[0]);
+
+// Gaussian Kernel
+let sigma = 2;
+let window_size = 6 * sigma;
+let gaussian_kernel = ndarray(new Float32Array(window_size+1), [window_size+1]);
+for (let i = -window_size/2; i <= window_size/2; i++) {
+	let value = Math.exp(-i * i / (2 * sigma * sigma)) / (Math.sqrt(2 * Math.PI) * sigma);
+	gaussian_kernel.set(i + window_size/2, value);
+}
+kernel = gaussian_kernel;
 
 // Convolve
 var y2 = ndarray(new Float32Array(y.shape[0]), y.shape);
