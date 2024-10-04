@@ -5,6 +5,7 @@ import './App.css';
 import { TorchContext } from "./contexts/torch";
 
 import Main from "./main";
+import P5Sketch from "./components/p5-sketch";
 
 function App() {
   const [torch, setTorch] = React.useState(null);
@@ -36,6 +37,7 @@ function App() {
             Learn React
           </a>
           <Main />
+          <P5Sketch width={400} height={400} />
         </header>
       </div>
     </TorchContext.Provider>
