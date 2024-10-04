@@ -19,6 +19,6 @@ export const bandPass = (data: number[]) => {
         }
         filteredData.push(newData);
     }
-
+    
     return filteredData;
 }

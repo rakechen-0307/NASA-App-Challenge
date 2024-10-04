@@ -6,7 +6,7 @@ export const gaussianSmoothing = (data: number[], smoothingStd: number) => {
     const x = Array.from({ length: windowSize + 1 }, (_, i) => i - halfWindow); 
 
     // Generate Gaussian kernel
-    const gaussianKernel = x.map(val => Math.exp((-val) ** 2 / (2 * smoothingStd ** 2)));
+    const gaussianKernel = x.map(val => Math.exp(0 - val ** 2 / (2 * smoothingStd ** 2)));
     const kernelSum = gaussianKernel.reduce((sum, val) => sum + val, 0);
     const normalizedKernel = gaussianKernel.map(val => val / kernelSum);
 

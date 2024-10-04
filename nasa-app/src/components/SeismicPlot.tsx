@@ -63,7 +63,7 @@ const SeismicPlot: React.FC<SeismicPlotProps> = ({ data, std, widthFactor, smoot
       const { values, locations, level } = peaksFinder(velocity, std, widthFactor);
       const peaks = locations.map(([left, mid, right]) => ({
         x: data[mid].x,
-        y: data[mid].y
+        y: velocity[mid]
       }));
 
       setPeaksData([{ type: "scatter", dataPoints: peaks, name: "Peaks", markerType: "circle", color: "red", showInLegend: true }]);

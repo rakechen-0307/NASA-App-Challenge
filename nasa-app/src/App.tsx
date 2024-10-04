@@ -13,7 +13,7 @@ function App() {
     loadedData.map((point: any) => {
       let datapoint: Data = {
         x: point[1],
-        y: point[2] * 1e9
+        y: point[2]
       };
       datapoints.push(datapoint);
     });
