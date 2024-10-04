@@ -1,0 +1,1045 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-7QRVV2J34B"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-7QRVV2J34B');
+      </script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../layers/">
+      
+      
+      
+      <link rel="icon" href="../icon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
+    
+    
+      
+        <title>Tutorials - JS-PyTorch</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorials" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch" class="md-header__button md-logo" aria-label="JS-PyTorch" data-md-component="logo">
+      
+  <img src="../white_icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorials
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/eduardoleao052/js-pytorch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JS-PyTorch
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tensor/" class="md-tabs__link">
+        
+  
+    
+  
+  Tensor
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../operations/" class="md-tabs__link">
+        
+  
+    
+  
+  Operations
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../layers/" class="md-tabs__link">
+        
+  
+    
+  
+  Layers
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+    
+  
+  Tutorials
+
+      </a>
+    </li>
+  
+    <li class="md-tabs__item">
+      <a href="../demo/" class="md-tabs__link">
+        
+  
+    
+  
+  Demo
+
+      </a>
+    </li>
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch" class="md-nav__button md-logo" aria-label="JS-PyTorch" data-md-component="logo">
+      
+  <img src="../white_icon.png" alt="logo">
+
+    </a>
+    JS-PyTorch
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/eduardoleao052/js-pytorch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JS-PyTorch
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tensor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tensor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../layers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Layers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gradients" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gradients
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#neural-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Neural Network
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transformer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saving-and-loading-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving and Loading Models
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+    <li class="md-nav__item">
+      <a href="../demo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Demo
+  </span>
+  
+
+      </a>
+    </li>
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="tutorials">Tutorials</h1>
+<p>This section contains ready-to-use examples of JS-PyTorch in action, with increasing complexity and explainations along the way.</p>
+<h2 id="gradients">Gradients</h2>
+<p>To use the autograd functionality (get Tensor's gradients), first create your input tensor, and your parameter tensors. We want to see the gradients of the parameter tensors relative to the output, so we set <code>requires_grad=true</code> on them.</p>
+<pre><code class="language-typescript">const { torch } = require(&quot;js-pytorch&quot;);
+
+// Instantiate Input Tensor:
+let x = torch.randn([8, 4, 5], false);
+
+// Instantiate Parameter Tensors:
+let w = torch.randn([8, 5, 4], true);
+let b = torch.tensor([0.2, 0.5, 0.1, 0.0], true);
+</code></pre>
+<ul>
+<li>The parameter tensor <code>w</code> will be multiplied by the input tensor <code>x</code>.</li>
+<li>The parameter tensor <code>b</code> will be added to the input tensor <code>x</code>.</li>
+</ul>
+<pre><code class="language-javascript">// Make calculations:
+let y = torch.matmul(x, w);
+y = torch.add(out, b);
+</code></pre>
+<p>Now, compute the gradients of <code>w</code> and <code>b</code> using <code>tensor.backward</code> on the output tensor <code>y</code>.</p>
+<pre><code class="language-javascript">// Compute gradients on whole graph:
+y.backward();
+
+// Get gradients from specific Tensors:
+console.log(w.grad);
+console.log(b.grad);
+</code></pre>
+<p>To access the gradients of a tensor after calling <code>tensor.backward</code> on the output, use the syntax <code>tensor.grad</code>.</p>
+<h2 id="neural-network">Neural Network</h2>
+<p>To train a neural network from scratch, first import the <code>torch</code>, <code>torch.nn</code> and <code>torch.optim</code> modules.</p>
+<pre><code class="language-javascript">const torch = require(&quot;js-pytorch&quot;);
+const nn = torch.nn;
+const optim = torch.optim;
+</code></pre>
+<p>Now, create the Neural Network class. This class extends the <code>nn.Module</code> object.
+In the constructor, add the <strong>layers</strong> that make up your model, adding them as attributes of your Neural Network class.
+In this case, there is:</p>
+<ul>
+<li>A <strong>Linear</strong> layer, stored in <code>this.w1</code>.</li>
+<li>A <strong>ReLU</strong> activation function, stored in <code>this.relu1</code>.</li>
+<li>A <strong>Linear</strong> layer, stored in <code>this.w2</code>.</li>
+<li>A <strong>ReLU</strong> activation function, stored in  <code>this.relu2</code>.</li>
+<li>A <strong>Linear</strong> layer, stored in <code>this.w3</code>.</li>
+</ul>
+<p>The size of these layers depends on three parameters, passed into the constructor: </p>
+<ul>
+<li><strong>input_size</strong>, defines the size of the last dimension of the input tensor.</li>
+<li><strong>hidden_size</strong>, defines the size of each <strong>hidden layer</strong> in the model.</li>
+<li><strong>out_size</strong> defines the size of the last dimension of the output tensor. This is the same as the number of classes of the output.</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> The <strong>input_size</strong> must be the input size of the first layer, and <strong>out_size</strong> must be the output size of the last layer.</p>
+</blockquote>
+<p>After the constructor, create a forward method, where an input is passed through each layer in the model.
+To pass the input through a layer, use:</p>
+<pre><code class="language-javascript">this.layer.forward(input);
+</code></pre>
+<p>The final class is as follows:</p>
+<pre><code class="language-javascript">
+// Implement Module class:
+class NeuralNet extends nn.Module {
+  constructor(in_size, hidden_size, out_size) {
+    super();
+    // Instantiate Neural Network's Layers:
+    this.w1 = new nn.Linear(in_size, hidden_size);
+    this.relu1 = new nn.ReLU();
+    this.w2 = new nn.Linear(hidden_size, hidden_size);
+    this.relu2 = new nn.ReLU();
+    this.w3 = new nn.Linear(hidden_size, out_size);
+  };
+
+  forward(x) {
+    let z;
+    z = this.w1.forward(x);
+    z = this.relu1.forward(z);
+    z = this.w2.forward(z);
+    z = this.relu2.forward(z);
+    z = this.w3.forward(z);
+    return z;
+  };
+};
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> To add the module to the <strong>gpu</strong> for faster computation, pass the argument <code>'gpu'</code> to the <strong>Linear</strong> layers.</p>
+</blockquote>
+<p>Now, create an instance of your NeuralNetwork class. Declare the <strong>in_size</strong>, <strong>hidden_size</strong> and <strong>out_size</strong> according to your data, and  fine a batch size:</p>
+<pre><code class="language-javascript">// Instantiate Model:
+let in_size = 16;
+let hidden_size = 32;
+let out_size = 10;
+let batch_size = 16;
+
+let model = new NeuralNet(in_size,hidden_size,out_size);
+</code></pre>
+<p>Instantiate the loss function and optimizer, passing the parameters of the models using the <code>model.parameters()</code> method and the learning rate.</p>
+<pre><code class="language-javascript">// Define loss function and optimizer:
+let loss_func = new nn.CrossEntropyLoss();
+let optimizer = new optim.Adam(model.parameters(), 3e-3);
+</code></pre>
+<p>Import the data, and add it to <strong>x (input)</strong> and <strong>y (target)</strong> variables.</p>
+<blockquote>
+<p><strong>Note:</strong> Here, we are generating a dummy dataset (random input and target).</p>
+</blockquote>
+<pre><code class="language-javascript">// Instantiate input and output:
+let x = torch.randn([batch_size, in_size]);
+let y = torch.randint(0, out_size, [batch_size]);
+let loss;
+</code></pre>
+<p>Create a <strong>train loop</strong> to train your model:</p>
+<pre><code class="language-javascript">// Training Loop:
+for (let i = 0; i &lt; 256; i++) {
+  let z = model.forward(x);
+
+  // Get loss:
+  loss = loss_func.forward(z, y);
+
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
+
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+
+  // Print current loss:
+  console.log(`Iter: ${i} - Loss: ${loss.data}`);
+}
+</code></pre>
+<details>
+<summary> <b>Detailing</b> </summary>
+
+</br>
+
+On each pass through the training loop, the following happens:
+
+</br>
+
+</br>
+
+
+- The input is passed through the model:
+
+
+<pre><code class="language-javascript">let z = model.forward(x);
+</code></pre>
+
+
+- The loss is calculated:
+
+
+<pre><code class="language-javascript">loss = loss_func.forward(z, y);
+</code></pre>
+
+
+- The gradients are computed: 
+
+
+<pre><code class="language-javascript">loss.backward();
+</code></pre>
+
+
+- The parameters are optimized:
+
+
+<pre><code class="language-javascript">optimizer.step();
+</code></pre>
+
+
+- The gradients are reset:
+
+
+<pre><code class="language-javascript">optimizer.zero_grad();
+</code></pre>
+
+
+- The current loss is printed to the console:
+
+
+<pre><code class="language-javascript">console.log(`Iter: ${i} - Loss: ${loss.data}`);
+</code></pre>
+
+
+</details>
+<p></br>
+Now, the entire Neural Network, with:</p>
+<ul>
+<li>Class declaration.</li>
+<li>Hyperparameter Definition.</li>
+<li>Train Loop.
+</br></li>
+</ul>
+<details>
+<summary><b>Full Implementation</b></summary>
+
+
+<pre><code class="language-javascript">const torch = require(&quot;js-pytorch&quot;);
+const nn = torch.nn;
+const optim = torch.optim;
+
+// Implement Module class:
+class NeuralNet extends nn.Module {
+  constructor(in_size, hidden_size, out_size) {
+    super();
+    // Instantiate Neural Network's Layers:
+    this.w1 = new nn.Linear(in_size, hidden_size);
+    this.relu1 = new nn.ReLU();
+    this.w2 = new nn.Linear(hidden_size, hidden_size);
+    this.relu2 = new nn.ReLU();
+    this.w3 = new nn.Linear(hidden_size, out_size);
+  };
+
+  forward(x) {
+    let z;
+    z = this.w1.forward(x);
+    z = this.relu1.forward(z);
+    z = this.w2.forward(z);
+    z = this.relu2.forward(z);
+    z = this.w3.forward(z);
+    return z;
+  };
+};
+
+// Instantiate Model:
+let in_size = 16;
+let hidden_size = 32;
+let out_size = 10;
+let batch_size = 16;
+
+let model = new NeuralNet(in_size,hidden_size,out_size);
+
+// Define loss function and optimizer:
+let loss_func = new nn.CrossEntropyLoss();
+let optimizer = new optim.Adam(model.parameters(), 3e-3);
+
+// Instantiate input and output:
+let x = torch.randn([batch_size, in_size]);
+let y = torch.randint(0, out_size, [batch_size]);
+let loss;
+
+// Training Loop:
+for (let i = 0; i &lt; 256; i++) {
+  let z = model.forward(x);
+
+  // Get loss:
+  loss = loss_func.forward(z, y);
+
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
+
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+
+  // Print current loss:
+  console.log(`Iter: ${i} - Loss: ${loss.data}`);
+}
+</code></pre>
+
+
+</details>
+
+<p></br></p>
+<h2 id="transformer">Transformer</h2>
+<p>Following the exact same steps as the last tutorial, we can create a <strong>Transformer Model</strong>.</p>
+<p>The inputs of the constructor are:</p>
+<ul>
+<li><strong>vocab_size</strong>, defines the size of the last dimension of the input and output tensor. It is the number of characters or words that compose your vocabulary.</li>
+<li><strong>hidden_size</strong>, defines the size of each <strong>hidden layer</strong> in the model.</li>
+<li><strong>n_timesteps</strong> number of timesteps computed in parallel by the transformer.</li>
+<li><strong>dropout_p</strong> probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device</strong> is the device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+</ul>
+<details>
+<summary><b>Full Implementation</b></summary>
+
+
+<pre><code class="language-typescript">const { torch } = require(&quot;js-pytorch&quot;);
+const nn = torch.nn;
+const optim = torch.optim;
+const device = 'gpu';
+
+// Create Transformer decoder Module:
+class Transformer extends nn.Module {
+  constructor(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device) {
+    super();
+    // Instantiate Transformer's Layers:
+    this.embed = new nn.Embedding(vocab_size, hidden_size);
+    this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
+    this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
+    this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
+    this.ln = new nn.LayerNorm(hidden_size);
+    this.linear = new nn.Linear(hidden_size, vocab_size, device);
+  }
+
+  forward(x) {
+    let z;
+    z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
+    z = this.b1.forward(z);
+    z = this.b2.forward(z);
+    z = this.ln.forward(z);
+    z = this.linear.forward(z);
+    return z;
+  }
+}
+
+// Define training hyperparameters:
+const vocab_size = 52;
+const hidden_size = 32;
+const n_timesteps = 16;
+const n_heads = 4;
+const dropout_p = 0;
+const batch_size = 8;
+
+// Instantiate your custom nn.Module:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device);
+
+// Define loss function and optimizer:
+const loss_func = new nn.CrossEntropyLoss();
+const optimizer = new optim.Adam(model.parameters(), (lr = 5e-3), (reg = 0));
+
+// Instantiate sample input and output:
+let x = torch.randint(0, vocab_size, [batch_size, n_timesteps, 1]);
+let y = torch.randint(0, vocab_size, [batch_size, n_timesteps]);
+let loss;
+
+// Training Loop:
+for (let i = 0; i &lt; 256; i++) {
+  // Forward pass through the Transformer:
+  let z = model.forward(x);
+
+  // Get loss:
+  loss = loss_func.forward(z, y);
+
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
+
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+
+  // Print loss at every iteration:
+  console.log(`Iter ${i} - Loss ${loss.data[0].toFixed(4)}`)
+}
+</code></pre>
+
+
+</details>
+
+<p></br></p>
+<h2 id="saving-and-loading-models">Saving and Loading Models</h2>
+<p>To <strong>save</strong> a model, first <strong>instantiate a class</strong> extending <code>nn.Module</code> for your model, as explained in the previous tutorials.</p>
+<pre><code class="language-typescript">// Instantiate your model:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+</code></pre>
+<p>Then, <strong>train</strong> your model.
+When you are finished, or during training (to generate snapshots), save the model to a JSON file using <code>torch.save()</code>:</p>
+<pre><code class="language-javascript">// Save model to JSON file:
+torch.save(model, 'model.json')
+</code></pre>
+<p>To <strong>load</strong> the model, instantiate a placeholder as an empty instance of the same model:</p>
+<pre><code class="language-javascript">// To load, instantiate placeHolder using the original model's architecture:
+const placeHolder = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+</code></pre>
+<p>Then, load the weights of the trained model into the placeholder using <code>torch.load()</code>:</p>
+<pre><code class="language-javascript">// Load weights into placeHolder:
+const newModel = torch.load(placeHolder, 'model.json')
+</code></pre>
+<h2 id="testing">Testing</h2>
+<p>To test a model, just run your test data through the trained model using <code>model.forward()</code>:</p>
+<pre><code class="language-javascript">// Load weights into placeHolder:
+let z = model.forward(x);
+</code></pre>
+<p>Then, use a <strong>loss function</strong> or a custom function to calculate your loss or accuracy in comparaison with the <strong>target</strong>:</p>
+<pre><code class="language-javascript">let loss = nn.CrossEntropyLoss(z,y);
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 Eduardo Leitão da Cunha Opice Leão
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/eduardoleao052/js-pytorch" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/eduardoleao052/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "toc.integrate", "toc.follow", "navigation.top"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      
+    
+  </body>
+</html>
