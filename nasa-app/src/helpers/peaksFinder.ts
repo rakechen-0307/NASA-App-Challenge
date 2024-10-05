@@ -27,6 +27,19 @@ export const peaksFinder = (data: number[], std: number, widthFactor: number) =>
 
         if (max_value <= level) continue;
 
+        // Fine-tune the peak by checking the neighborhood
+        for (let ii = crossing_indices[i] + 1; ii < crossing_indices[i + 1]; ii++) {
+            if (
+                data[ii] >= data[ii - 1] &&
+                data[ii] >= data[ii + 1] &&
+                data[ii] >= data[max_index] * 0.5 + level * 0.5
+            ) {
+                max_value = data[ii];
+                max_index = ii;
+                break;
+            }
+        }
+
         let left_index = data.slice(0, max_index).reverse().findIndex(val => val <= max_value * widthFactor);
         let right_index = data.slice(max_index).findIndex(val => val <= max_value * widthFactor);
 

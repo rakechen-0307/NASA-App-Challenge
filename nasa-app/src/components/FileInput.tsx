@@ -3,13 +3,12 @@ import Papa from "papaparse";
 
 interface FileInputProps {
   onFileLoad: (loadedData: any, std: number, widthFactor: number, smoothingStd: number) => void;
+  std: number;
+  widthFactor: number;
+  smoothingStd: number;
 }
 
-const FileInput: React.FC<FileInputProps> = ({ onFileLoad }) => {
-
-  const std = 2;
-  const widthFactor = 0.3;
-  const smoothingStd = 600;
+const FileInput: React.FC<FileInputProps> = ({ onFileLoad, std, widthFactor, smoothingStd }) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
