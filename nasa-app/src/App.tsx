@@ -12,6 +12,7 @@ import { downsample } from './helpers/downSample';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
+import { Planet } from './types/Three';
 
 var ndarray = require('ndarray');
 var ops = require('ndarray-ops');
@@ -197,6 +198,8 @@ function App() {
         />
       }
       <button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>
+      <button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MARS)}>Toggle Mars</button>
+      <button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MOON)}>Toggle Moon</button>
     </div>
     // <h1>CSV Import in React.js</h1>
     // <FileInput onFileLoad={handleFileLoad} />

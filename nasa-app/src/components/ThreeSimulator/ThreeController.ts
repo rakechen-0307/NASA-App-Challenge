@@ -6,6 +6,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare';
 
 import { LENSFLARE0_URL, LENSFLARE1_URL, PLANET_URLS, WORLD_URL } from "../../constants";
+import { PolarPosition, Planet } from "../../types/Three";
 
 // postprocessing for three.js
 
@@ -21,6 +22,7 @@ import Controls from "./Controls";
 // controls to control the scene
 
 import Settings from "./Settings";
+import { PolarToCartesian } from "./utils";
 
 
 /**
@@ -33,11 +35,10 @@ class ThreeController {
 
   renderer: THREE.WebGLRenderer;
   camera: THREE.PerspectiveCamera;
-  // THREE.Object3D<THREE.Event>
+
   scene: THREE.Scene;
   composer: EffectComposer;
   clock: THREE.Clock;
-  // settings: Settings;
 
   height: number;
   width: number;
@@ -46,6 +47,8 @@ class ThreeController {
   // world: THREE.Mesh;
 
   light: THREE.DirectionalLight;
+  flareLight: THREE.PointLight;
+  lightPosition: PolarPosition;
 
   controls: Controls;
   settings: Settings;
@@ -64,13 +67,23 @@ class ThreeController {
     this.scene = this.generateScene();
     this.composer = this.generateComposer();
     this.clock = new THREE.Clock();
-    this.light = this.generateLight();
 
-    this.planet = this.generatePlanet();
-    // this.world = this.generateWorld();
+    this.light = this.generateLight();
+    this.flareLight = this.generateLensflareLight(this.light);
+
+    this.lightPosition = { radius: 0, phi: 0, theta: 0 };
+    this.updateLightPosition(
+      {
+        radius: 1500,
+        phi: Math.PI / 2 * 2.2,
+        theta: Math.PI / 2 * 0.6,
+      }
+    );
+
+    this.planet = this.generatePlanet(Planet.MOON);
 
     // Initialize controls after the renderer is set up
-    this.controls = new Controls(this.renderer, this.scene, this.camera, this.planet);
+    this.controls = this.generateControl();
     this.settings = new Settings(this);
 
     // Data and status for playback
@@ -86,6 +99,10 @@ class ThreeController {
 
   triggerRandomQuake(amplitude: number, length: number, sampleRate: number, decay: number = 0.0) {
     this.controls.quakeControls.triggerRandom(amplitude, length, sampleRate, decay);
+  }
+
+  triggerUpdatePlanetMaterial(transitionCycle: number, planet: Planet) {
+    this.controls.switchPlanet.trigger(transitionCycle, planet);
   }
 
   /**
@@ -111,7 +128,7 @@ class ThreeController {
     this.composer = this.generateComposer();
 
     // Initialize controls after the renderer is set up
-    this.controls = new Controls(this.renderer, this.scene, this.camera, this.planet);
+    this.controls = this.generateControl();
 
     // Append the canvas to given ref
     this.canvas.appendChild(this.renderer.domElement);
@@ -121,6 +138,10 @@ class ThreeController {
     this.renderer.render(this.scene, this.camera);
 
     // this.enablePMREM();
+  }
+
+  generateControl() {
+    return new Controls(this);
   }
 
   generateRenderer() {
@@ -147,25 +168,37 @@ class ThreeController {
     return scene;
   }
 
+  updateLightPosition(pos: PolarPosition) {
+    const { radius, phi, theta } = pos;
 
-  addLensflareLight(
-    r: number, g: number, b: number,
-    x: number, y: number, z: number,
-    sourceTexture: THREE.Texture, flareTexture: THREE.Texture
-  ) {
+    this.lightPosition = { radius, phi, theta };
+    const lightPosition = PolarToCartesian(this.lightPosition);
 
-    const light = new THREE.PointLight(0xffffff, 1.5, 2000, 0);
-    light.color.setRGB(r, g, b);
-    light.position.set(x, y, z);
-    this.scene.add(light);
+    this.light.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
+    this.flareLight.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
+  }
+
+  generateLensflareLight(light: THREE.DirectionalLight) {
+    const lightColor = light.color;
+
+    const flareLight = new THREE.PointLight(0xffffff, 1.5, 2000, 0);
+    flareLight.color.setRGB(lightColor.r, lightColor.g, lightColor.b);
+    flareLight.position.set(light.position.x, light.position.y, light.position.z);
+    this.scene.add(flareLight);
+
+    const textureLoader = new THREE.TextureLoader();
+    const sourceTexture = textureLoader.load(LENSFLARE0_URL);
+    const flareTexture = textureLoader.load(LENSFLARE1_URL);
 
     const lensflare = new Lensflare();
-    lensflare.addElement(new LensflareElement(sourceTexture, 500, 0, light.color));
+    lensflare.addElement(new LensflareElement(sourceTexture, 300, 0, flareLight.color));
     lensflare.addElement(new LensflareElement(flareTexture, 60, 0.6));
     lensflare.addElement(new LensflareElement(flareTexture, 70, 0.7));
     lensflare.addElement(new LensflareElement(flareTexture, 120, 0.9));
     lensflare.addElement(new LensflareElement(flareTexture, 70, 1));
-    light.add(lensflare);
+    flareLight.add(lensflare);
+
+    return flareLight;
   }
 
   generateLight() {
@@ -173,28 +206,10 @@ class ThreeController {
     // const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
     // this.scene.add(ambientLight);
 
-    const lightRadius = 1500;
-    const lightPhi = Math.PI / 2 * 2.2;
-    const lightTheta = Math.PI / 2 * 0.6;
-
-    const lightPosition = new THREE.Vector3();
-    lightPosition.z = -lightRadius * Math.cos(lightPhi) * Math.sin(lightTheta);
-    lightPosition.x = -lightRadius * Math.sin(lightPhi) * Math.sin(lightTheta);
-    lightPosition.y = lightRadius * Math.cos(lightTheta);
-
     // Add a stronger directional light to create shadows and highlights
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
+    // directionalLight.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
     this.scene.add(directionalLight);
-
-    const textureLoader = new THREE.TextureLoader();
-    const textureFlare0 = textureLoader.load(LENSFLARE0_URL);
-    const textureFlare1 = textureLoader.load(LENSFLARE1_URL);
-
-    this.addLensflareLight(
-      1.0, 1.0, 1.0,
-      lightPosition.x, lightPosition.y, lightPosition.z,
-      textureFlare0, textureFlare1);
 
     return directionalLight;
   }
@@ -245,12 +260,27 @@ class ThreeController {
     return composer;
   }
 
-  generatePlanet() {
+  updatePlanetMaterial(planetType: Planet) {
+    // console.log("updatePlanetMaterial", planetType);
+    const newPlanet = this.generatePlanet(planetType);
+    this.scene.add(newPlanet);
+    this.scene.remove(this.planet);
+    this.planet = newPlanet;
+    this.controls.updatePlanet(this.planet);
+  }
+
+  generatePlanet(planetType: Planet) {
     const geometry = new THREE.SphereGeometry(2, 500, 500);
 
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(PLANET_URLS.moon.texture);
-    const displacementMap = textureLoader.load(PLANET_URLS.moon.displacement);
+    let texture = textureLoader.load(PLANET_URLS.moon.texture);
+    // const displacementMap = textureLoader.load(PLANET_URLS.moon.displacement);
+
+    if (planetType === Planet.MOON) {
+      texture = textureLoader.load(PLANET_URLS.moon.texture);
+    } else if (planetType === Planet.MARS) {
+      texture = textureLoader.load(PLANET_URLS.mars.texture);
+    }
 
     const material = new THREE.MeshPhongMaterial(
       {

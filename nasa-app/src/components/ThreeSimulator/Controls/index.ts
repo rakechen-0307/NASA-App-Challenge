@@ -1,40 +1,32 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import QuakeControls from "./Quake";
+import SwitchPlanet from "./SwitchPlanet";
+import ThreeController from "../ThreeController";
 
 class Controls {
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  planet: THREE.Mesh;
-
-  domElement: HTMLElement;
+  controller: ThreeController;
 
   orbitControls: OrbitControls;
   quakeControls: QuakeControls;
+  switchPlanet: SwitchPlanet;
 
   constructor(
-    renderer: THREE.WebGLRenderer,
-    scene: THREE.Scene,
-    camera: THREE.PerspectiveCamera,
-    planet: THREE.Mesh
+    controller: ThreeController,
   ) {
-    this.renderer = renderer;
-    this.scene = scene;
-    this.camera = camera;
-    this.planet = planet;
-    this.domElement = renderer.domElement;
+    this.controller = controller;
 
     this.orbitControls = this.initOrbitControls();
     this.quakeControls = this.initQuakeControls();
+    this.switchPlanet = this.initSwitchPlanet(controller);
   }
 
   initOrbitControls() {
-    const orbitControls = new OrbitControls(this.camera, this.domElement);
+    const orbitControls = new OrbitControls(this.controller.camera, this.controller.renderer.domElement);
 
     orbitControls.enablePan = false;
     orbitControls.enableZoom = false;
-    orbitControls.enableRotate = true;
+    orbitControls.enableRotate = false;
     orbitControls.screenSpacePanning = true;
     // Smooth camera movement
     orbitControls.enableDamping = true;
@@ -47,13 +39,23 @@ class Controls {
   }
 
   initQuakeControls() {
-    const quakeControls = new QuakeControls(this.planet);
+    const quakeControls = new QuakeControls(this.controller.planet);
     return quakeControls;
+  }
+
+  initSwitchPlanet(controller: ThreeController) {
+    const switchPlanet = new SwitchPlanet(controller);
+    return switchPlanet;
+  }
+
+  updatePlanet(planet: THREE.Mesh) {
+    this.quakeControls.planet = planet;
   }
 
   update() {
     this.orbitControls.update();
     this.quakeControls.update();
+    this.switchPlanet.update();
   }
 }
 

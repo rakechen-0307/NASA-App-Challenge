@@ -1,12 +1,11 @@
 import { useEffect, useRef, useLayoutEffect } from "react";
 import { threeController } from "./ThreeController";
 import { useResizeDetector } from "react-resize-detector";
-
+import { Planet } from "../../types/Three";
 
 
 export default function ThreeSimulator() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  // const containerRef = useRef<HTMLDivElement>(null);
   const { ref: containerRef } = useResizeDetector({
     onResize: ({ width, height }) => {
       if (threeController.isInitialized()) {
@@ -19,7 +18,9 @@ export default function ThreeSimulator() {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     // console.log(canvas, container);
-    canvas && container && threeController.init(canvas, container);
+    if (canvas && container) {
+      threeController.init(canvas, container);
+    }
   }, [canvasRef, containerRef]);
 
 
