@@ -13,13 +13,11 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 function toDataPoints(x, y) {
 	return x.map((x, i) => ({ x, y: y.get(i) }));
 }
-function toDataPoints2(dps, x, y) {
-	dps = x.map((x, i) => ({ x, y: y.get(i) }));
-}
+
 // Data points
 var y = ndarray(new Float32Array(Array.from({ length: 100 }, () => Math.random() * 10)), [100]);
 ops.mulseq(y, 0.1);
-var x = Array.from({ length: y.shape[0] }, (_, i) => i + 1);
+var x = Array.from({ length: y.shape[0] }, (_, i) => i);
 
 // Square wave kernel
 var kernel = ndarray(new Float32Array(10), [10]);
@@ -44,9 +42,10 @@ convolve(y2, y, kernel);
 // Chart points
 var dps = toDataPoints(x, y);
 var dps2 = toDataPoints(x, y2);
-var dps3 = toDataPoints(Array.from({ length: kernel.shape[0] }, (_, i) => i + 1), kernel);
+var dps3 = toDataPoints(Array.from({ length: kernel.shape[0] }, (_, i) => i-window_size/2), kernel);
 
 var updateInterval = 100;
+let idx = 0;
 class App extends Component {
 	constructor() {
 		super();
@@ -64,13 +63,14 @@ class App extends Component {
 		// 	dps.shift();
 		// }
 		// Assuming dps and dps3 are defined and populated arrays
+
 		if (dps3.length > 0) {
-			let idx = dps3[dps3.length - 1].x;
 			if (idx < dps.length && idx < dps2.length) {
 				dps[idx] = dps2[idx];
+				idx++;
 			}
 	
-			if (dps3[dps3.length - 1].x < dps.length) {
+			if (idx < dps.length) {
 				for (let i = 0; i < dps3.length; i++) {
 					dps3[i].x += 1;
 				}
@@ -84,6 +84,10 @@ class App extends Component {
 			title :{
 				text: "Dynamic Line Chart"
 			},
+			axisX: {
+				minimum: 0,
+				maximum: 100,
+			},
 			data: [
 				{
 					type: "line",
@@ -95,7 +99,8 @@ class App extends Component {
 				// },
 				{
 					type: "line",
-					dataPoints : dps3
+					dataPoints : dps3,
+					markerType: "none",
 				}
 			]
 		}
