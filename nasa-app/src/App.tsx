@@ -13,6 +13,9 @@ import { downsample } from './helpers/downSample';
 var ndarray = require('ndarray');
 var ops = require('ndarray-ops');
 
+import ThreeSimulator from './components/ThreeSimulator';
+import { threeController } from './components/ThreeSimulator/ThreeController';
+
 function App() {
   const [step, setStep] = useState<number>(0);
   const [data, setData] = useState<Data[]>([]);
@@ -30,15 +33,15 @@ function App() {
   const ratioThreshold = 2;
   const samples = 10000;
 
-  const bandPassKernel = (ts: number, data: Data[]) : Data[] => {
-    const moon_coef = Array(-0.015468212,0.005414803,-0.021013882,-0.00472374,4.77E-02,
-                              0.026547969,0.002031613,0.055068256,0.038977124,-0.058782592,
-                              -0.034768745,0.002012645,-0.170557003,-0.224228809,0.151489773,
-                              0.437803402,0.151489773,-0.224228809,-0.170557003,0.002012645,
-                              -0.034768745,-0.058782592,0.038977124,0.055068256,0.002031613,
-                              0.026547969,0.047658812,-4.72E-03,-0.021013882,0.005414803,-0.015468212);
-    
-    let kernel = moon_coef.map((value, i) => ({ x: -i*ts, y: value }));
+  const bandPassKernel = (ts: number, data: Data[]): Data[] => {
+    const moon_coef = Array(-0.015468212, 0.005414803, -0.021013882, -0.00472374, 4.77E-02,
+      0.026547969, 0.002031613, 0.055068256, 0.038977124, -0.058782592,
+      -0.034768745, 0.002012645, -0.170557003, -0.224228809, 0.151489773,
+      0.437803402, 0.151489773, -0.224228809, -0.170557003, 0.002012645,
+      -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
+      0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
+
+    let kernel = moon_coef.map((value, i) => ({ x: -i * ts, y: value }));
 
     const maxDataValue = Math.max(...data.map(d => d.y));
     const maxKernelValue = Math.max(...kernel.map(k => k.y));
@@ -49,15 +52,15 @@ function App() {
     return kernel;
   }
 
-  const gaussianKernel = (std: number, ts: number, data: Data[]) : Data[] => {
+  const gaussianKernel = (std: number, ts: number, data: Data[]): Data[] => {
     let window_size = 6 * std;
-    let kernel = Array(window_size+1).fill(0);
-    let x = Array(window_size+1).fill(0);
+    let kernel = Array(window_size + 1).fill(0);
+    let x = Array(window_size + 1).fill(0);
 
-    for (let i = -window_size/2; i <= window_size/2; i++) {
-        let value = Math.exp(-i * i / (2 * std * std)) / (Math.sqrt(2 * Math.PI) * std);
-        kernel[i+window_size/2] = value;
-        x[i+window_size/2] = i*ts;
+    for (let i = -window_size / 2; i <= window_size / 2; i++) {
+      let value = Math.exp(-i * i / (2 * std * std)) / (Math.sqrt(2 * Math.PI) * std);
+      kernel[i + window_size / 2] = value;
+      x[i + window_size / 2] = i * ts;
     }
 
     // Normalize the kernel for visulization
@@ -65,7 +68,7 @@ function App() {
     const maxKernelValue = Math.max(...kernel);
 
     kernel = kernel.map((value, i) => ({ x: x[i], y: value * 0.5 * (maxDataValue / maxKernelValue) }));
-    
+
 
     return kernel;
   }
@@ -117,7 +120,7 @@ function App() {
       peaks.push({ x: x1 * ts, y: velocity[x1] });
       slopes.push(toDataPointsSample([x0, x1, x2], time, velocity));
     }
-    
+
     const peakLocations = peakSelect(velocity, locations, slopeThreshold, ratioThreshold).map(value => value * ts);
     setData(downsample(datapoints, samples));
     setFilteredData(downsample(filteredDataPoint, samples));
@@ -130,26 +133,31 @@ function App() {
 
   return (
     <div>
+      <ThreeSimulator />
       <h1>Seismic Waveform Detection</h1>
       <div className='button-flex'>
-          <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
-          <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
-          <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
-          <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
+        <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
+        <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
+        <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
+        <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
       </div>
       <FileInput onFileLoad={handleFileLoad} />
       {data.length > 0 && <SeismicPlot
-          step={step}
-          data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}
-          nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
-          kernel={step === 1 ? bandPassKernel(ts, data) : step === 2 ? gaussianKernel(std, ts, filteredData) : []}
-          peaks={peaksData}
-          slopes={slopesData}
-          level={level}
-          peakLocation={peakLocation}
-        />
+        step={step}
+        data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}
+        nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
+        kernel={step === 1 ? bandPassKernel(ts, data) : step === 2 ? gaussianKernel(std, ts, filteredData) : []}
+        peaks={peaksData}
+        slopes={slopesData}
+        level={level}
+        peakLocation={peakLocation}
+      />
       }
+      <button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>
     </div>
+    // <h1>CSV Import in React.js</h1>
+    // <FileInput onFileLoad={handleFileLoad} />
+    // {data.length > 0 && <SeismicPlot data={data} std={2} widthFactor={0.3} smoothingStd={600} />}
   );
 }
 
