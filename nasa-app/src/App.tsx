@@ -92,58 +92,14 @@ function App() {
     <div>
       <h1>Seismic Waveform Detection</h1>
       <FileInput onFileLoad={handleFileLoad} />
-      {data.length > 0 && step === 0 ?
-        <SeismicPlot  
+      {data.length > 0 && <SeismicPlot
           step={step}
           data={data}
-          nextData={[]}
-          kernel={[]}
-          peaks={[]}
-          slopes={[]}
-          level={0}
-          peakLocation={[]}
-        /> :
-      step === 1 ?
-        <SeismicPlot  
-          step={step}
-          data={data}
-          nextData={filteredData}
-          kernel={bandPassKernel(ts)}
-          peaks={[]}
-          slopes={[]}
-          level={0}
-          peakLocation={[]}
-        /> :
-      step === 2 ?
-        <SeismicPlot  
-          step={step}
-          data={filteredData}
-          nextData={smoothedData}
-          kernel={gaussianKernel(std, ts)}
-          peaks={[]}
-          slopes={[]}
-          level={0}
-          peakLocation={[]}
-        /> :
-      step === 3 ?
-        <SeismicPlot  
-          step={step}
-          data={centeredData}
-          nextData={[]}
-          kernel={[]}
+          nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
+          kernel={step === 1 ? bandPassKernel(ts) : step === 2 ? gaussianKernel(std, ts) : []}
           peaks={peaksData}
           slopes={slopesData}
           level={level}
-          peakLocation={[]}
-        /> :
-        <SeismicPlot  
-          step={step}
-          data={data}
-          nextData={[]}
-          kernel={[]}
-          peaks={[]}
-          slopes={[]}
-          level={0}
           peakLocation={peakLocation}
         />
       }
