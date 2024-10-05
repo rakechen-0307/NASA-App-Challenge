@@ -10,6 +10,9 @@ import SeismicPlot from './components/SeismicPlot';
 import { peakSelect } from './helpers/peakSelect';
 import { downsample } from './helpers/downSample';
 
+import ThreeSimulator from './components/ThreeSimulator';
+import { threeController } from './components/ThreeSimulator/ThreeController';
+
 var ndarray = require('ndarray');
 var ops = require('ndarray-ops');
 
@@ -90,15 +93,15 @@ function App() {
     return kernel;
   }
 
-  const gaussianKernel = (std: number, ts: number, data: Data[]) : Data[] => {
+  const gaussianKernel = (std: number, ts: number, data: Data[]): Data[] => {
     let window_size = 6 * std;
-    let kernel = Array(window_size+1).fill(0);
-    let x = Array(window_size+1).fill(0);
+    let kernel = Array(window_size + 1).fill(0);
+    let x = Array(window_size + 1).fill(0);
 
-    for (let i = -window_size/2; i <= window_size/2; i++) {
-        let value = Math.exp(-i * i / (2 * std * std)) / (Math.sqrt(2 * Math.PI) * std);
-        kernel[i+window_size/2] = value;
-        x[i+window_size/2] = i*ts;
+    for (let i = -window_size / 2; i <= window_size / 2; i++) {
+      let value = Math.exp(-i * i / (2 * std * std)) / (Math.sqrt(2 * Math.PI) * std);
+      kernel[i + window_size / 2] = value;
+      x[i + window_size / 2] = i * ts;
     }
 
     // Normalize the kernel for visulization
@@ -159,7 +162,7 @@ function App() {
       peaks.push({ x: x1 * ts, y: velocity[x1] });
       slopes.push(toDataPointsSample([x0, x1, x2], time, velocity));
     }
-    
+
     const peakLocations = peakSelect(velocity, locations, slopeThreshold, ratioThreshold).map(value => value * ts);
     setData(downsample(datapoints, samples));
     setFilteredData(downsample(filteredDataPoint, samples));
@@ -172,6 +175,7 @@ function App() {
 
   return (
     <div>
+      <ThreeSimulator />
       <h1>Seismic Waveform Detection</h1>
       <div>
         <label>
@@ -179,10 +183,10 @@ function App() {
         </label>
       </div>
       <div className='button-flex'>
-          <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
-          <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
-          <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
-          <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
+        <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
+        <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
+        <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
+        <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
       </div>
       <FileInput onFileLoad={handleFileLoad} std={std} widthFactor={widthFactor} smoothingStd={smoothingStd} />
       {data.length > 0 && <SeismicPlot
@@ -196,7 +200,11 @@ function App() {
           peakLocation={peakLocation}
         />
       }
+      <button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>
     </div>
+    // <h1>CSV Import in React.js</h1>
+    // <FileInput onFileLoad={handleFileLoad} />
+    // {data.length > 0 && <SeismicPlot data={data} std={2} widthFactor={0.3} smoothingStd={600} />}
   );
 }
 
