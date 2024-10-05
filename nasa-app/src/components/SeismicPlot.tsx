@@ -15,7 +15,8 @@ interface SeismicPlotProps {
   peaks: Data[];
   slopes: Data[][];
   level: number;
-  peakLocation: number[];
+  startLocations: number[];
+  endLocations: number[];
 }
 
 interface SeismicPlotState {
@@ -26,7 +27,8 @@ interface SeismicPlotState {
   peaks: Data[];
   slopes: Data[][];
   level: number;
-  peakLocation: number[];
+  startLocations: number[];
+  endLocations: number[];
   idx: number;
   innerStep: number;
 }
@@ -47,7 +49,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       peaks: [...props.peaks],
       slopes: [...props.slopes],
       level: props.level,
-      peakLocation: props.peakLocation,
+      startLocations: props.startLocations,
+      endLocations: props.endLocations,
       idx: 0,
       innerStep: 0
     };
@@ -84,7 +87,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         peaks: [...this.props.peaks],
         slopes: [...this.props.slopes],
         level: this.props.level,
-        peakLocation: this.props.peakLocation,
+        startLocations: this.props.startLocations,
+        endLocations: this.props.endLocations,
         idx: 0 // Reset the index when new data comes in
       });
     }
@@ -95,7 +99,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx, peakLocation } = this.state;
+    const { step, data, nextData, kernel, idx } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
@@ -163,7 +167,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   render() {
-    const { step, data, kernel, peaks, slopes, level, peakLocation } = this.state;
+    const { step, data, kernel, peaks, slopes, level, startLocations, endLocations } = this.state;
 
     // Render based on step value
     if (step === 0) {
@@ -323,9 +327,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: '#f03e3e' }
         ]
       };
-
       slopes.forEach((slopeData: Data[]) => {
-        options.data.push({ type: 'line', dataPoints: slopeData, color: "#74b816" });
+        options.data.push({ type: 'line', dataPoints: slopeData, color: "#91e817" });
       });
 
       return (
@@ -366,8 +369,11 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           { type: 'line', dataPoints: data, color: "#34dbeb" },
         ]
       };
-      peakLocation.forEach((location: number) => {
+      startLocations.forEach((location: number) => {
         options.axisX.stripLines.push({ thickness: 2, value: location , color: '#f03e3e' });
+      });
+      endLocations.forEach((location: number) => {
+        options.axisX.stripLines.push({ thickness: 2, value: location , color: '#91e817' });
       });
 
       return (

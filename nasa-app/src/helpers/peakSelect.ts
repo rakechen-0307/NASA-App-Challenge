@@ -2,7 +2,8 @@ export const peakSelect = (data: any, locations: number[][], slopeThreshold: num
     // Check if data is an ndarray
     data = data.data ? data.data : data;
     // Calculate slopes and ratios
-    let selectedPeaks = [];
+    let startLocations = [];
+    let endLocations = [];
     for (let i = 0; i < locations.length; i++) {
         let x0 = locations[i][0];
         let x1 = locations[i][1];
@@ -22,9 +23,10 @@ export const peakSelect = (data: any, locations: number[][], slopeThreshold: num
         }
         */
         if (ratio > ratioThreshold) {
-            selectedPeaks.push(x1 - y1 / slope1);
+            startLocations.push(x1 - y1 / slope1);
+            endLocations.push(x1 - y1 / slope2);
         }
     }
 
-    return selectedPeaks;
+    return { startLocations, endLocations };
 }

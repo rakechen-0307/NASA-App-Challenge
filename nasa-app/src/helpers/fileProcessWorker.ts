@@ -61,9 +61,9 @@ self.onmessage = function(e) {
       slopes.push(toDataPointsSample([x0, x1, x2], time, velocity));
     }
 
-    const peakLocations = peakSelect(velocity, locations, params.slopeThreshold, params.ratioThreshold).map(
-        value => value * params.ts
-    );
+    let { startLocations, endLocations } = peakSelect(velocity, locations, params.slopeThreshold, params.ratioThreshold);
+    startLocations = startLocations.map(value => value * params.ts);
+    endLocations = endLocations.map(value => value * params.ts);
 
     const downDataPoints = downsample(datapoints, samples);
     const downFilteredDataPoint = downsample(filteredDataPoint, samples);
@@ -79,6 +79,7 @@ self.onmessage = function(e) {
         peaks,
         slopes,
         level,
-        peakLocations,
+        startLocations,
+        endLocations
     });
 }

@@ -19,7 +19,8 @@ function App() {
     peaksData: [],
     slopesData: [],
     level: 0,
-    peakLocation: []
+    startLocations: [],
+    endLocations: []
   });
 
   let ts = 0.1509;
@@ -73,7 +74,8 @@ function App() {
 
     workerRef.current.onmessage = (e) => {
       const { downDataPoints, downFilteredDataPoint, downSmoothedDataPoint, 
-              downNormalizedDataPoint, peaks, slopes, level, peakLocations } = e.data;
+              downNormalizedDataPoint, peaks, slopes, level, startLocations,
+              endLocations } = e.data;
       
       setProcessedData({
         data: downDataPoints,
@@ -83,7 +85,8 @@ function App() {
         peaksData: peaks,
         slopesData: slopes,
         level: level,
-        peakLocation: peakLocations
+        startLocations: startLocations,
+        endLocations: endLocations
       })
 
       // Stop the quakes once processing is done
@@ -182,7 +185,8 @@ function App() {
           peaks={processedData.peaksData}
           slopes={processedData.slopesData}
           level={processedData.level}
-          peakLocation={processedData.peakLocation}
+          startLocations={processedData.startLocations}
+          endLocations={processedData.endLocations}
         />
       }
       {/*<button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>*/}
