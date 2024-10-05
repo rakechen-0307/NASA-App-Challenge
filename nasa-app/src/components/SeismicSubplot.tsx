@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Component } from 'react';
-import { Data, ChartInfo, PeakInfo } from '../types/Data';
+import { Data } from '../types/Data';
 
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';

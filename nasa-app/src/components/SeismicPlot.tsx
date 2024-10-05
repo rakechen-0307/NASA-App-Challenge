@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Component } from 'react';
-import { Data, ChartInfo, PeakInfo } from '../types/Data';
+import { Data } from '../types/Data';
 
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
@@ -210,12 +210,34 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Bandpass filter rendering
     else if (step === 1) {
       const options = {
-        title: { text: 'Bandpass Filter' },
-        axisX: { title: 'Time' },
-        axisY: { title: 'Amplitude' },
+        theme: "dark1",
+        backgroundColor: "transparent",
+        axisX: { 
+          title: 'Time (s)',
+          color: "#34dbeb",
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+        },
+        axisY: { 
+          title: 'Amplitude (m/s)',
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+        },
         data: [
-          { type: 'line', dataPoints: data },
-          { type: 'line', dataPoints: kernel }
+          { type: 'line', dataPoints: data, color: "#34dbeb" },
+          { type: 'line', dataPoints: kernel, color: "#f0a314" }
         ]
       };
 
@@ -229,12 +251,34 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Gaussian smoothing rendering
     else if (step === 2) {
       const options = {
-        title: { text: 'Gaussian Smoothing' },
-        axisX: { title: 'Time' },
-        axisY: { title: 'Amplitude' },
+        theme: "dark1",
+        backgroundColor: "transparent",
+        axisX: { 
+          title: 'Time (s)',
+          color: "#34dbeb",
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+        },
+        axisY: { 
+          title: 'Amplitude (m/s)',
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+        },
         data: [
-          { type: 'line', dataPoints: data },
-          { type: 'line', dataPoints: kernel }
+          { type: 'line', dataPoints: data, color: "#34dbeb" },
+          { type: 'line', dataPoints: kernel, color: "#f0a314" }
         ]
       };
 
@@ -248,20 +292,40 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Peaks and slopes rendering
     else if (step === 3) {
       const options = {
-        title: { text: 'Find Peaks & Slopes' },
-        axisX: { title: 'Time' },
+        theme: "dark1",
+        backgroundColor: "transparent",
+        axisX: { 
+          title: 'Time (s)',
+          color: "#34dbeb",
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+        },
         axisY: {
-          title: 'Amplitude',
-          stripLines: [{ value: level, thickness: 2, color: 'green' }]
+          title: 'Amplitude (m/s)',
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+          stripLines: [{ value: level, thickness: 2, color: '#fcc419' }]
         },
         data: [
-          { type: 'line', dataPoints: data },
-          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: 'red' }
+          { type: 'line', dataPoints: data, color: "#34dbeb" },
+          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: '#f03e3e' }
         ]
       };
 
       slopes.forEach((slopeData: Data[]) => {
-        options.data.push({ type: 'line', dataPoints: slopeData });
+        options.data.push({ type: 'line', dataPoints: slopeData, color: "#74b816" });
       });
 
       return (
@@ -273,15 +337,37 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
     else if (step === 4) {
       const options = {
-        title: { text: 'Mark Seismic Positions' },
-        axisX: { title: 'Time', stripLines: [] as { thickness: number; value: number; color: string }[] },
-        axisY: { title: 'Amplitude' },
+        theme: "dark1",
+        backgroundColor: "transparent",
+        axisX: { 
+          title: 'Time (s)',
+          color: "#34dbeb",
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+          stripLines: [] as { thickness: number; value: number; color: string }[] },
+        axisY: {
+          title: 'Amplitude (m/s)',
+          lineColor: "#34dbeb",
+          tickColor: "#34dbeb",
+          gridColor: "#34dbeb",
+          labelFontColor: "#34dbeb",
+          titleFontColor: "#34dbeb",
+          lineThickness: 2,
+          tickThickness: 1,
+          gridThickness: 1,
+        },
         data: [
-          { type: 'line', dataPoints: data },
+          { type: 'line', dataPoints: data, color: "#34dbeb" },
         ]
       };
       peakLocation.forEach((location: number) => {
-        options.axisX.stripLines.push({ thickness: 2, value: location , color: 'red' });
+        options.axisX.stripLines.push({ thickness: 2, value: location , color: '#f03e3e' });
       });
 
       return (

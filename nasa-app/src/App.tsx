@@ -1,35 +1,27 @@
 import './App.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import FileInput from './components/FileInput';
 import { Data } from './types/Data';
-import { bandPass } from './helpers/bandPass';
-import { gaussianSmoothing } from './helpers/gaussianSmoothing';
-import { peaksFinder } from './helpers/peaksFinder';
-import { toDataPoints, toDataPointsSample } from './helpers/toDataPoints';
 import SeismicPlot from './components/SeismicPlot';
-import { peakSelect } from './helpers/peakSelect';
-import { downsample } from './helpers/downSample';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
 import { Planet } from './types/Three';
 
-var ndarray = require('ndarray');
-var ops = require('ndarray-ops');
-
 function App() {
   const [step, setStep] = useState<number>(0);
-  const [data, setData] = useState<Data[]>([]);
-  const [filteredData, setFilteredData] = useState<Data[]>([]);
-  const [smoothedData, setSmoothedData] = useState<Data[]>([]);
-  const [normalizedData, setNormalizedData] = useState<Data[]>([]);
-  const [peaksData, setPeaksData] = useState<Data[]>([]);
-  const [slopesData, setSlopesData] = useState<Data[][]>([]);
-  const [level, setLevel] = useState<number>(0);
-  const [peakLocation, setPeakLocation] = useState<number[]>([]);
   const [planet, setPlanet] = useState<string>("lunar");
+  const [processedData, setProcessedData] = useState<any>({
+    data: [],
+    filteredData: [],
+    smoothedData: [],
+    normalizedData: [],
+    peaksData: [],
+    slopesData: [],
+    level: 0,
+    peakLocation: []
+  });
 
-  const samples = 10000;
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -71,14 +63,46 @@ function App() {
                       -0.124987344,-0.049134331,0.005371116,-0.012730875,-0.059643647,-0.069394178,
                       -0.034209679,-0.001507097,-0.006810152,-0.032765272,-0.039009518,-0.015753723);
     }
-  }, [planet])
+  }, [planet]);
+
+  const quakeIntervalRef = useRef<any>(null);
+  const workerRef = useRef<Worker | null>(null);
+
+  useEffect(() => {
+    workerRef.current = new Worker(new URL('./helpers/fileProcessWorker.ts', import.meta.url));
+
+    workerRef.current.onmessage = (e) => {
+      const { downDataPoints, downFilteredDataPoint, downSmoothedDataPoint, 
+              downNormalizedDataPoint, peaks, slopes, level, peakLocations } = e.data;
+      
+      setProcessedData({
+        data: downDataPoints,
+        filteredData: downFilteredDataPoint,
+        smoothedData: downSmoothedDataPoint,
+        normalizedData: downNormalizedDataPoint,
+        peaksData: peaks,
+        slopesData: slopes,
+        level: level,
+        peakLocation: peakLocations
+      })
+
+      // Stop the quakes once processing is done
+      clearInterval(quakeIntervalRef.current);
+    }
+
+    return () => {
+      if (workerRef.current) workerRef.current.terminate();
+    };
+  }, []);
 
   const handlePlanetSwitch = () => {
     if (planet === "lunar") {
       setPlanet("mars");
+      threeController.triggerUpdatePlanetMaterial(500, Planet.MARS);
     }
     else if (planet === "mars") {
       setPlanet("lunar");
+      threeController.triggerUpdatePlanetMaterial(500, Planet.MOON);
     }
   }
 
@@ -115,59 +139,22 @@ function App() {
   }
 
   const handleFileLoad = (loadedData: any) => {
-    // Load data
-    const datapoints: Data[] = loadedData.map((point: any) => ({
-      x: point[1],
-      y: point[2]
-    }));
+    // Trigger quakes while processing
+    quakeIntervalRef.current = setInterval(() => {
+      threeController.triggerRandomQuake(0.03, 20, 5, 0.02);
+    }, 200);
 
-    // Extract x and y values
-    let time = ndarray(datapoints.map(d => d.x));
-    let velocity = ndarray(datapoints.map(d => d.y));
-
-    // Apply bandpass filter
-    const filteredVelocity = bandPass(velocity, bp_coef);
-    const filteredDataPoint = toDataPoints(time, filteredVelocity);
-
-    // Absolute value
-    let absVelocity = ndarray(new Float32Array(filteredVelocity.shape[0]), filteredVelocity.shape);
-    ops.abs(absVelocity, filteredVelocity);
-
-    // Apply Gaussian smoothing
-    const smoothedVelocity = gaussianSmoothing(absVelocity, smoothingStd);
-    const smoothedDataPoint = toDataPoints(time, smoothedVelocity);
-
-    // Normalize
-    const average = ops.sum(smoothedVelocity) / smoothedVelocity.shape[0];
-    let normalizedVelocity = ndarray(new Float32Array(smoothedVelocity.shape[0]), smoothedVelocity.shape);
-    ops.subs(normalizedVelocity, smoothedVelocity, average);
-    ops.maxs(normalizedVelocity, normalizedVelocity, 0);
-    setNormalizedData(toDataPoints(time, normalizedVelocity));
-
-    // Convert back to normal array
-    velocity = normalizedVelocity.data;
-    time = time.data;
-
-    // Find peaks
-    const { locations, level } = peaksFinder(velocity, std, widthFactor);
-    let peaks = [];
-    let slopes = [];
-    for (let i = 0; i < locations.length; i++) {
-      let x0 = locations[i][0];
-      let x1 = locations[i][1];
-      let x2 = locations[i][2];
-      peaks.push({ x: x1 * ts, y: velocity[x1] });
-      slopes.push(toDataPointsSample([x0, x1, x2], time, velocity));
+    const params = {
+      ts: ts,
+      std: std,
+      smoothingStd: smoothingStd,
+      slopeThreshold: slopeThreshold,
+      ratioThreshold: ratioThreshold,
+      widthFactor: widthFactor,
+      bp_coef: bp_coef
     }
 
-    const peakLocations = peakSelect(velocity, locations, slopeThreshold, ratioThreshold).map(value => value * ts);
-    setData(downsample(datapoints, samples));
-    setFilteredData(downsample(filteredDataPoint, samples));
-    setSmoothedData(downsample(smoothedDataPoint, samples));
-    setPeaksData(peaks);
-    setSlopesData(slopes);
-    setLevel(level);
-    setPeakLocation(peakLocations);
+    workerRef.current?.postMessage({ loadedData, params });
   };
 
   return (
@@ -186,24 +173,21 @@ function App() {
         <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
       </div>
       <FileInput onFileLoad={handleFileLoad} />
-      {data.length > 0 && <SeismicPlot
+      {processedData.data.length > 0 && <SeismicPlot
           step={step}
-          data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}
-          nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
-          kernel={step === 1 ? bandPassKernel(ts, data, bp_coef) : step === 2 ? gaussianKernel(std, ts, filteredData) : []}
-          peaks={peaksData}
-          slopes={slopesData}
-          level={level}
-          peakLocation={peakLocation}
+          data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
+          nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
+          kernel={step === 1 ? bandPassKernel(ts, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, ts, processedData.filteredData) : []}
+          peaks={processedData.peaksData}
+          slopes={processedData.slopesData}
+          level={processedData.level}
+          peakLocation={processedData.peakLocation}
         />
       }
-      <button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>
-      <button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MARS)}>Toggle Mars</button>
-      <button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MOON)}>Toggle Moon</button>
+      {/*<button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>*/}
+      {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MARS)}>Toggle Mars</button>*/}
+      {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MOON)}>Toggle Moon</button>*/}
     </div>
-    // <h1>CSV Import in React.js</h1>
-    // <FileInput onFileLoad={handleFileLoad} />
-    // {data.length > 0 && <SeismicPlot data={data} std={2} widthFactor={0.3} smoothingStd={600} />}
   );
 }
 
