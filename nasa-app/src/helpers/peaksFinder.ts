@@ -1,6 +1,3 @@
-import { log } from "console";
-import { isConditionalExpression } from "typescript";
-
 export const peaksFinder = (data: number[], std: number, widthFactor: number) => {
     const mu: number = data.reduce((accumulator, value) => (accumulator + value), 0) / data.length;   // mean
     const sigma: number = Math.sqrt(data.map(value => Math.pow(value - mu, 2)).reduce(

@@ -13,12 +13,7 @@ export const gaussianSmoothing = (data: number[], smoothingStd: number) => {
     // Convolution with Gaussian kernel (using 'same' mode)
     const smoothedVelocity = convolve(absData, normalizedKernel);
 
-    // normalize
-    const average: number = smoothedVelocity.reduce((accumulator, value) => (accumulator + value), 0) / smoothedVelocity.length;
-    let centeredVelocity = smoothedVelocity.map(val => val - average);
-    centeredVelocity = centeredVelocity.map(val => (val >= 0 ? val : 0));
-
-    return centeredVelocity;
+    return smoothedVelocity;
 }
 
 const convolve = (data: number[], kernel: number[]) => {
