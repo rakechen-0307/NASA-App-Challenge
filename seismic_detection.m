@@ -22,7 +22,7 @@ slope_ratio_threshold = 2;
 %% Read File
 % Moon
 data_directory = fullfile("data", "lunar", "training", "data", "S12_GradeA");
-filename = "xa.s12.00.mhz.1970-07-20HR00_evid00011.csv";
+filename = "xa.s12.00.mhz.1975-06-24HR00_evid00196.csv";
 % filename = "xa.s12.00.mhz.1970-10-24HR00_evid00014.csv";
 % filename = "xa.s12.00.mhz.1973-03-01HR00_evid00093.csv";
 
@@ -45,21 +45,40 @@ plot(time, velocity, "LineWidth", line_width);
 title("Original Signal"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
 
 %% Step 1: Bandpass Filter
-velocity = bandpass(velocity, frequency_band, 1 / ts);
+filterOrder = 30;
+d = designfilt('bandpassfir', ...       % Response type
+       'FilterOrder',filterOrder, ...   % Filter order
+       'StopbandFrequency1',0.5, ...    % Frequency constraints
+       'PassbandFrequency1',0.55, ...
+       'PassbandFrequency2',1.95, ...
+       'StopbandFrequency2',2, ...
+       'DesignMethod','ls', ...         % Design method
+       'StopbandWeight1',1, ...         % Design method options
+       'PassbandWeight', 1, ...
+       'StopbandWeight2',1, ...
+       'SampleRate',1/ts);               % Sample rate
+bp_filter_coef = d.Coefficients;
+sig_augmented = [zeros(1, length(bp_filter_coef) - 1), velocity'];
+velocity = zeros(1, length(velocity_original));
+for ii = 1:length(velocity)
+    velocity(ii) = sum(sig_augmented(ii:ii+filterOrder) .* bp_filter_coef);
+end
 subplot(plot_count, 1, 2)
 plot(time, velocity, "LineWidth", line_width)
 title("Step1: Bandpass Filter"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
-
+velocity = velocity';
+bp_velocity = velocity;
 %% Step 2: Absolute Value + Smoothing + Normalization
 % Absolute value
 velocity = abs(velocity);
+abs_vel = velocity;
 % Gaussian smoothing
 window_size = 6 * smoothing_std;
 x = -floor(window_size / 2):1:floor(window_size / 2);
 gaussian_kernel = exp(-x .^ 2 / (2 * smoothing_std ^ 2));
 gaussian_kernel = gaussian_kernel / sum(gaussian_kernel);
 velocity = conv(velocity, gaussian_kernel, 'same');
-
+gaussian_vel = velocity;
 % Normalization
 average = mean(velocity);
 velocity = velocity - average;
@@ -69,7 +88,7 @@ velocity = velocity .* (velocity >= 0);
 subplot(plot_count, 1, 3);
 plot(time, velocity, "LineWidth", line_width);
 title("Step2: Absolute Value + Smoothing + Normalization"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
-
+normalize_vel = velocity;
 %% Step 3: Find Peaks + Slopes
 % Find peaks
 [peaks, peak_indices, level] = peaksfinder(velocity, peak_std_num, 0.3);
