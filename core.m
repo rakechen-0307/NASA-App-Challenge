@@ -1,14 +1,7 @@
-%% Initialize
-% close all
-clear;
-close all;
-clc;
-% change directory
-script_directory = fileparts(mfilename('fullpath'));
-cd(script_directory);
-fprintf("Working directory: %s.\n", script_directory);
-% Prepare plot
-figure(1);
+function result_fig = core(file)
+
+%% Init
+result_fig = figure('Visible','off');
 sgtitle("Seismic Detection Process");
 plot_count = 5;
 line_width = 1.2;
@@ -20,21 +13,8 @@ peak_std_num = 2; % number of std to be recognized as a peak (recommend 2~3)
 slope_threshold = 5e-13; % largest slope (abs) to be recognized a a quake
 slope_ratio_threshold = 2;
 
-%% Read File
-% Moon
-data_directory = fullfile("data", "lunar", "training", "data", "S12_GradeA");
-filename = "xa.s12.00.mhz.1975-06-24HR00_evid00196.csv";
-% filename = "xa.s12.00.mhz.1970-10-24HR00_evid00014.csv";
-% filename = "xa.s12.00.mhz.1973-03-01HR00_evid00093.csv";
-
-% Mars
-% data_directory = fullfile("data", "mars", "test", "data");
-% filename = "XB.ELYSE.02.BHV.2022-05-04HR23_evid0001.csv";
-
-file_path = fullfile(data_directory, filename);
-% read data
 fprintf("Reading data...\n")
-data_table = readtable(file_path, 'VariableNamingRule', 'preserve');
+data_table = readtable(file, 'VariableNamingRule', 'preserve');
 fprintf("Data read.\n")
 time = data_table{:, 2};
 velocity = data_table{:, 3};
@@ -68,19 +48,16 @@ subplot(plot_count, 1, 2)
 plot(time, velocity, "LineWidth", line_width)
 title("Step1: Bandpass Filter"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
 velocity = velocity';
-bp_velocity = velocity;
 
 %% Step 2: Absolute Value + Smoothing + Normalization
 % Absolute value
 velocity = abs(velocity);
-abs_vel = velocity;
 % Gaussian smoothing
 window_size = 6 * smoothing_std;
 x = -floor(window_size / 2):1:floor(window_size / 2);
 gaussian_kernel = exp(-x .^ 2 / (2 * smoothing_std ^ 2));
 gaussian_kernel = gaussian_kernel / sum(gaussian_kernel);
 velocity = conv(velocity, gaussian_kernel, 'same');
-gaussian_vel = velocity;
 % Normalization
 average = mean(velocity);
 velocity = velocity - average;
@@ -90,7 +67,6 @@ velocity = velocity .* (velocity >= 0);
 subplot(plot_count, 1, 3);
 plot(time, velocity, "LineWidth", line_width);
 title("Step2: Absolute Value + Smoothing + Normalization"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
-normalize_vel = velocity;
 
 %% Step 3: Find Peaks + Slopes
 % Find peaks

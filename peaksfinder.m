@@ -2,12 +2,9 @@ function [values, locations, level] = peaksfinder(y, std_num, width_factor)
     %% Prepare
     % Calculate Average and STD
     mu = mean(y);
-    fprintf("mu: %f\n", mu*1e11);
     sigma = std(y);
-    fprintf("sigma: %f\n", sigma*1e11);
     % Calculate STD Levels
     level = mu + sigma .* std_num;
-    fprintf("level: %f\n", level*1e10);
 
     %% Main Calculation
     locations = cell(1, 1);
