@@ -18,6 +18,9 @@ function [values, locations, level] = peaksfinder(y, std_num, width_factor)
         if (crossing_indices(i) <= right_most_index)
             continue;
         end
+        guess_max_value = [];
+        guess_max_index = [];
+        % Try to find all peaks
 
         % Find peaks
         segment_indices = crossing_indices(i):crossing_indices(i + 1);
@@ -26,6 +29,14 @@ function [values, locations, level] = peaksfinder(y, std_num, width_factor)
         max_index = max_index + crossing_indices(i) - 1; % local to global index
         if max_value <= level
             continue;
+        end
+
+        for ii = crossing_indices(i) + 1 : crossing_indices(i+1) - 1
+            if y(ii) >= y(ii-1) && y(ii) >= y(ii+1) && y(ii) >= y(max_index) * 0.5 + level*0.5
+                max_value = y(ii);
+                max_index = ii;
+                break;
+            end
         end
 
         % Calculate peak size
