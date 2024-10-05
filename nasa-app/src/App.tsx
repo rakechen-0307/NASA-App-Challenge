@@ -10,11 +10,11 @@ import SeismicPlot from './components/SeismicPlot';
 import { peakSelect } from './helpers/peakSelect';
 import { downsample } from './helpers/downSample';
 
-var ndarray = require('ndarray');
-var ops = require('ndarray-ops');
-
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
+
+var ndarray = require('ndarray');
+var ops = require('ndarray-ops');
 
 function App() {
   const [step, setStep] = useState<number>(0);
