@@ -113,9 +113,7 @@ function App() {
     return kernel;
   }
 
-  const handleFileLoad = (
-    loadedData: any, std: number, widthFactor: number, smoothingStd: number
-  ) => {
+  const handleFileLoad = (loadedData: any) => {
     // Load data
     const datapoints: Data[] = loadedData.map((point: any) => ({
       x: point[1],
@@ -151,8 +149,6 @@ function App() {
 
     // Find peaks
     const { locations, level } = peaksFinder(velocity, std, widthFactor);
-    console.log(locations);
-    console.log(level);
     let peaks = [];
     let slopes = [];
     for (let i = 0; i < locations.length; i++) {
@@ -188,7 +184,7 @@ function App() {
         <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
         <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
       </div>
-      <FileInput onFileLoad={handleFileLoad} std={std} widthFactor={widthFactor} smoothingStd={smoothingStd} />
+      <FileInput onFileLoad={handleFileLoad} />
       {data.length > 0 && <SeismicPlot
           step={step}
           data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}

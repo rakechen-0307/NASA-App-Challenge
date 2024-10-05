@@ -2,6 +2,7 @@ var ndarray = require('ndarray');
 var convolve = require('ndarray-convolve');
 
 export const gaussianSmoothing = (data: any, smoothingStd: number) :any => {
+    console.log(smoothingStd);
     // Check if data is an ndarray
     if (data.shape === undefined) {
         console.log('Warning: Data is not an ndarray');
@@ -13,6 +14,8 @@ export const gaussianSmoothing = (data: any, smoothingStd: number) :any => {
         let value = Math.exp(-i * i / (2 * smoothingStd * smoothingStd)) / (Math.sqrt(2 * Math.PI) * smoothingStd);
         gaussian_kernel.set(i + window_size/2, value);
     }
+
+    console.log(gaussian_kernel);
 
     // Convolution with Gaussian kernel
     let result = ndarray(new Float32Array(data.shape[0]), data.shape);
