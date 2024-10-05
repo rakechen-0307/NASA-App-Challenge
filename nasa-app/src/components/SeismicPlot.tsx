@@ -6,6 +6,7 @@ import CanvasJSReact from '@canvasjs/react-charts';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
 let slidingSpeed = 100; // samples per frame
+const levelFrames = 50;
 
 interface SeismicPlotProps {
   step: number;
@@ -29,6 +30,7 @@ interface SeismicPlotState {
   peakLocation: number[];
   idx: number;
   innerStep: number;
+  currentLevel: number;
 }
 
 class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
@@ -49,7 +51,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       level: props.level,
       peakLocation: props.peakLocation,
       idx: 0,
-      innerStep: 0
+      innerStep: 0,
+      currentLevel: 0,
     };
 
     this.chart = null;
@@ -85,7 +88,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         slopes: [...this.props.slopes],
         level: this.props.level,
         peakLocation: this.props.peakLocation,
-        idx: 0 // Reset the index when new data comes in
+        idx: 0, // Reset the index when new data comes in
+        currentLevel: 0,
       });
     }
 
@@ -95,7 +99,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx, peakLocation } = this.state;
+    const { step, data, nextData, kernel, idx, currentLevel, level } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
@@ -160,10 +164,18 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
       this.chart.render();
     }
+
+    else if (step === 3) {
+      if (idx < levelFrames) {
+        let newLevel = currentLevel + (level - currentLevel) * idx / levelFrames;
+        this.setState({ idx: idx + 1, currentLevel: newLevel });
+        this.chart.render();
+      }
+    }
   }
 
   render() {
-    const { step, data, kernel, peaks, slopes, level, peakLocation } = this.state;
+    const { step, data, kernel, peaks, slopes, level, peakLocation, currentLevel } = this.state;
 
     // Render based on step value
     if (step === 0) {
@@ -252,7 +264,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisX: { title: 'Time' },
         axisY: {
           title: 'Amplitude',
-          stripLines: [{ value: level, thickness: 2, color: 'green' }]
+          stripLines: [{ value: currentLevel, thickness: 2, color: 'green' }]
         },
         data: [
           { type: 'line', dataPoints: data },

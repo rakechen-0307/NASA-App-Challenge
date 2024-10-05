@@ -143,7 +143,7 @@ function App() {
     let normalizedVelocity = ndarray(new Float32Array(smoothedVelocity.shape[0]), smoothedVelocity.shape);
     ops.subs(normalizedVelocity, smoothedVelocity, average);
     ops.maxs(normalizedVelocity, normalizedVelocity, 0);
-    setNormalizedData(toDataPoints(time, normalizedVelocity));
+    const normalizedDataPoint = toDataPoints(time, normalizedVelocity);
 
     // Convert back to normal array
     velocity = normalizedVelocity.data;
@@ -167,6 +167,7 @@ function App() {
     setData(downsample(datapoints, samples));
     setFilteredData(downsample(filteredDataPoint, samples));
     setSmoothedData(downsample(smoothedDataPoint, samples));
+    setNormalizedData(downsample(normalizedDataPoint, samples));
     setPeaksData(peaks);
     setSlopesData(slopes);
     setLevel(level);
