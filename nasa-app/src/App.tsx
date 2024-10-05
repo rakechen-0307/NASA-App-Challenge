@@ -139,6 +139,7 @@ function App() {
   }
 
   const handleFileLoad = (loadedData: any) => {
+    setStep(0);
     // Trigger quakes while processing
     quakeIntervalRef.current = setInterval(() => {
       threeController.triggerRandomQuake(0.03, 20, 5, 0.02);
