@@ -7,6 +7,8 @@ import { gaussianSmoothing } from './helpers/gaussianSmoothing';
 import { peaksFinder } from './helpers/peaksFinder';
 import { toDataPoints } from './helpers/toDataPoints';
 import SeismicPlot from './components/SeismicPlot';
+import { peakSelect } from './helpers/peakSelect';
+import { downsample } from './helpers/downSample';
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -21,6 +23,9 @@ function App() {
 
   const ts = 0.1509;
   const std = 2;
+  const slopeThreshold = 1e-13;
+  const ratioThreshold = 2;
+  const samples = 10000;
 
   const bandPassKernel = (ts: number) : Data[] => {
     const moon_coef = Array(-0.015468212,0.005414803,-0.021013882,-0.00472374,4.77E-02,
@@ -54,7 +59,6 @@ function App() {
       x: point[1],
       y: point[2]
     }));
-    setData(datapoints);
 
     // Apply bandpass filter
     const filteredVelocity = bandPass(datapoints.map(d => d.y));
@@ -80,12 +84,16 @@ function App() {
       { x: datapoints[mid].x, y: centeredVelocity[right] }
     ]));
 
-    setFilteredData(filteredDataPoint);
-    setSmoothedData(smoothedDataPoint);
-    setCenteredData(centeredDataPoint);
+    const peakLocations = peakSelect(centeredDataPoint.map(d => d.y), locations, slopeThreshold, ratioThreshold);
+    
+    setData(downsample(datapoints, samples));
+    setFilteredData(downsample(filteredDataPoint, samples));
+    setSmoothedData(downsample(smoothedDataPoint, samples));
+    setCenteredData(downsample(centeredDataPoint, samples));
     setPeaksData(peaks);
     setSlopesData(slopes);
     setLevel(level);
+    setPeakLocation(peakLocations);
   };
 
   return (

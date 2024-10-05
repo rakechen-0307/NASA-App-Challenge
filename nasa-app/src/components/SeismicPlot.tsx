@@ -1,9 +1,13 @@
-import React from 'react';
-import { Data } from '../types/Data';
+import React, { useState, useEffect, Component } from 'react';
+import { Data, ChartInfo, PeakInfo } from '../types/Data';
+import { bandPass } from '../helpers/bandPass';
+import { peaksFinder } from '../helpers/peaksFinder';
+import { gaussianSmoothing } from '../helpers/gaussianSmoothing';
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
 
-const CanvasJSChart = CanvasJSReact.CanvasJSChart;
+let CanvasJSChart = CanvasJSReact.CanvasJSChart;
+let idx = 0;
 
 interface SeismicPlotProps {
   step: number;
@@ -17,146 +21,217 @@ interface SeismicPlotProps {
 }
 
 interface SeismicPlotState {
+  step: number;
   data: Data[];
+  nextData: Data[];
   kernel: Data[];
+  peaks: Data[];
+  slopes: Data[][];
+  level: number;
+  peakLocation: number[];
+  idx: number;
   innerStep: number;
 }
 
-class SeismicPlot extends React.Component<SeismicPlotProps, SeismicPlotState> {
-  private chart: any;
-  private updateInterval: number;
-  private intervalId: NodeJS.Timeout | null;
+class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
+  chart: any;
+  updateInterval: number;
 
   constructor(props: SeismicPlotProps) {
     super(props);
+
     this.state = {
-      data: props.data,
-      kernel: props.kernel,
+      step: props.step,
+      data: [...props.data],
+      nextData: [...props.nextData],
+      kernel: [...props.kernel],
+      peaks: [...props.peaks],
+      slopes: [...props.slopes],
+      level: props.level,
+      peakLocation: props.peakLocation,
+      idx: 0,
       innerStep: 0
     };
+
     this.chart = null;
     this.updateInterval = 100;
-    this.intervalId = null;
+    this.updateChart = this.updateChart.bind(this);
   }
 
   componentDidMount() {
-    this.intervalId = setInterval(this.updateChart, this.updateInterval);
-  }
-
-  componentWillUnmount() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
+    setInterval(this.updateChart, this.updateInterval);
   }
 
   componentDidUpdate(prevProps: SeismicPlotProps) {
-    if (prevProps.step !== this.props.step || prevProps.data !== this.props.data) {
+    // If props change, update the state with new props
+    if (
+      prevProps.step !== this.props.step ||
+      prevProps.data !== this.props.data ||
+      prevProps.nextData !== this.props.nextData ||
+      prevProps.kernel !== this.props.kernel ||
+      prevProps.peaks !== this.props.peaks ||
+      prevProps.slopes !== this.props.slopes ||
+      prevProps.level !== this.props.level
+    ) {
       this.setState({
-        data: this.props.data,
-        kernel: this.props.kernel,
-        innerStep: 0
+        step: this.props.step,
+        data: [...this.props.data],
+        nextData: [...this.props.nextData],
+        kernel: [...this.props.kernel],
+        peaks: [...this.props.peaks],
+        slopes: [...this.props.slopes],
+        level: this.props.level,
+        peakLocation: this.props.peakLocation,
+        idx: 0 // Reset the index when new data comes in
       });
-    }
-  }
-
-  updateChart = () => {
-    const { step, nextData } = this.props;
-    const { data, kernel, innerStep } = this.state;
-
-    if (step === 1) {
-      let idx = data.findIndex((d, i) => d.y !== nextData[i]?.y);
-      if (idx !== -1 && idx < data.length) {
-        const newData = [...data];
-        newData[idx] = nextData[idx];
-        const newKernel = kernel.length > 0 ? kernel.map(k => ({ ...k, x: k.x + 1 })) : kernel;
-        this.setState({ data: newData, kernel: newKernel });
-      }
-    } else if (step === 2) {
-      if (innerStep === 0) {
-        const newData = data.map(d => ({ ...d, y: Math.abs(d.y) }));
-        this.setState({ data: newData, innerStep: 1 });
-      } else if (innerStep === 1) {
-        let idx = data.findIndex((d, i) => d.y !== nextData[i]?.y);
-        if (idx !== -1 && idx < data.length) {
-          const newData = [...data];
-          newData[idx] = nextData[idx];
-          const newKernel = kernel.length > 0 ? kernel.map(k => ({ ...k, x: k.x + 1 })) : kernel;
-          this.setState({ data: newData, kernel: newKernel });
-        } else {
-          this.setState({ innerStep: 2 });
-        }
-      } else if (innerStep === 2) {
-        const average = data.reduce((acc, d) => acc + d.y, 0) / data.length;
-        const newData = data.map(d => ({ ...d, y: Math.max(d.y - average, 0) }));
-        this.setState({ data: newData, innerStep: 3 });
-      }
     }
 
     if (this.chart) {
       this.chart.render();
     }
-  };
+  }
 
-  getChartOptions = () => {
-    const { step, peaks, slopes, level } = this.props;
-    const { data, kernel } = this.state;
+  updateChart() {
+    const { step, data, nextData, kernel, idx } = this.state;
 
-    let options: any = {
-      animationEnabled: true,
-      zoomEnabled: true,
-      title: { text: this.getTitle() },
-      axisX: { title: "Time" },
-      axisY: { title: "Amplitude" },
-      data: [
-        {
-          type: "line",
-          dataPoints: data
+    // Bandpass filter logic
+    if (step === 1) {
+      if (kernel.length > 0) {
+        if (idx < data.length && idx < nextData.length) {
+          data[idx] = nextData[idx];
+          this.setState({ idx: idx + 1 });
         }
-      ]
-    };
 
-    if (step === 1 || step === 2) {
-      options.data.push({
-        type: "line",
-        dataPoints: kernel
-      });
+        if (idx < data.length) {
+          for (let i = 0; i < kernel.length; i++) {
+            kernel[i].x += 1;
+          }
+        }
+      }
+      this.chart.render();
     }
-
-    if (step === 3) {
-      options.axisY.stripLines = [{value: level, thickness: 2, color: "green"}];
-      options.data.push({
-        type: "scatter",
-        dataPoints: peaks,
-        markerType: "circle",
-        color: "red"
-      });
-      slopes.forEach(slopeData => {
-        options.data.push({
-          type: 'line',
-          dataPoints: slopeData
+    // Gaussian smoothing logic
+    else if (step === 2) {
+      let { innerStep } = this.state;
+      if (innerStep === 0) {
+        let velocity = data.map((d) => d.y);
+        velocity = velocity.map(Math.abs);
+        this.setState({
+          data: velocity.map((y, i) => ({ x: data[i].x, y })),
+          innerStep: 1
         });
-      });
-    }
+      } else if (innerStep === 1) {
+        if (kernel.length > 0) {
+          if (idx < data.length && idx < nextData.length) {
+            data[idx] = nextData[idx];
+            this.setState({ idx: idx + 1 });
+          }
 
-    return options;
-  };
+          if (idx < data.length) {
+            for (let i = 0; i < kernel.length; i++) {
+              kernel[i].x += 1;
+            }
+          } else {
+            this.setState({ innerStep: 2 });
+          }
+        }
+      } else if (innerStep === 2) {
+        let velocity = data.map((d) => d.y);
+        const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
+        let centeredVelocity = velocity.map((val) => val - average);
+        centeredVelocity = centeredVelocity.map((val) => (val >= 0 ? val : 0));
+        this.setState({
+          data: centeredVelocity.map((y, i) => ({ x: data[i].x, y }))
+        });
+      }
 
-  getTitle = () => {
-    switch (this.props.step) {
-      case 0: return "Original Signal";
-      case 1: return "Bandpass Filter";
-      case 2: return "Gaussian Smoothing";
-      case 3: return "Find Peaks & Slopes";
-      default: return "Seismic Plot";
+      this.chart.render();
     }
-  };
+  }
 
   render() {
-    return (
-      <div>
-        <CanvasJSChart options={this.getChartOptions()} onRef={(ref: any) => this.chart = ref} />
-      </div>
-    );
+    const { step, data, kernel, peaks, slopes, level } = this.state;
+
+    // Render based on step value
+    if (step === 0) {
+      const options = {
+        title: { text: 'Original Signal' },
+        axisX: { title: 'Time' },
+        axisY: { title: 'Amplitude' },
+        data: [{ type: 'line', dataPoints: data }]
+      };
+
+      return (
+        <div>
+          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
+        </div>
+      );
+    }
+
+    // Bandpass filter rendering
+    else if (step === 1) {
+      const options = {
+        title: { text: 'Bandpass Filter' },
+        axisX: { title: 'Time' },
+        axisY: { title: 'Amplitude' },
+        data: [
+          { type: 'line', dataPoints: data },
+          { type: 'line', dataPoints: kernel }
+        ]
+      };
+
+      return (
+        <div>
+          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
+        </div>
+      );
+    }
+
+    // Gaussian smoothing rendering
+    else if (step === 2) {
+      const options = {
+        title: { text: 'Gaussian Smoothing' },
+        axisX: { title: 'Time' },
+        axisY: { title: 'Amplitude' },
+        data: [
+          { type: 'line', dataPoints: data },
+          { type: 'line', dataPoints: kernel }
+        ]
+      };
+
+      return (
+        <div>
+          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
+        </div>
+      );
+    }
+
+    // Peaks and slopes rendering
+    else if (step === 3) {
+      const options = {
+        title: { text: 'Find Peaks & Slopes' },
+        axisX: { title: 'Time' },
+        axisY: {
+          title: 'Amplitude',
+          stripLines: [{ value: level, thickness: 2, color: 'green' }]
+        },
+        data: [
+          { type: 'line', dataPoints: data },
+          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: 'red' }
+        ]
+      };
+
+      slopes.forEach((slopeData: Data[]) => {
+        options.data.push({ type: 'line', dataPoints: slopeData });
+      });
+
+      return (
+        <div>
+          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
+        </div>
+      );
+    }
+    return null;
   }
 }
 
