@@ -14,9 +14,8 @@ export const peakSelect = (data: any, locations: number[][], slopeThreshold: num
         let slope2 = (y2 - y1) / (x2 - x1);
         let ratio = Math.abs(slope1 / slope2);
         let slope = Math.abs(slope2);
-
         if (slope < slopeThreshold && ratio > ratioThreshold) {
-            selectedPeaks.push(x1);
+            selectedPeaks.push(x1 - y1 / slope1);
         }
     }
 

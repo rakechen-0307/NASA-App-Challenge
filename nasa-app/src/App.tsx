@@ -26,7 +26,7 @@ function App() {
 
   const ts = 0.1509;
   const std = 600;
-  const slopeThreshold = 1e-13;
+  const slopeThreshold = 5e-13;
   const ratioThreshold = 2;
   const samples = 10000;
 
@@ -117,10 +117,8 @@ function App() {
       peaks.push({ x: x1 * ts, y: velocity[x1] });
       slopes.push(toDataPointsSample([x0, x1, x2], time, velocity));
     }
-    console.log(peaks);
-    console.log(slopes);
-    const peakLocations = peakSelect(velocity, locations, slopeThreshold, ratioThreshold);
     
+    const peakLocations = peakSelect(velocity, locations, slopeThreshold, ratioThreshold).map(value => value * ts);
     setData(downsample(datapoints, samples));
     setFilteredData(downsample(filteredDataPoint, samples));
     setSmoothedData(downsample(smoothedDataPoint, samples));
@@ -133,10 +131,16 @@ function App() {
   return (
     <div>
       <h1>Seismic Waveform Detection</h1>
+      <div className='button-flex'>
+          <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
+          <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
+          <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
+          <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
+      </div>
       <FileInput onFileLoad={handleFileLoad} />
       {data.length > 0 && <SeismicPlot
           step={step}
-          data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : []}
+          data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}
           nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
           kernel={step === 1 ? bandPassKernel(ts, data) : step === 2 ? gaussianKernel(std, ts, filteredData) : []}
           peaks={peaksData}
@@ -145,12 +149,18 @@ function App() {
           peakLocation={peakLocation}
         />
       }
-      <div className='button-flex'>
-          <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
-          <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
-          <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
-          <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
-      </div>
+      {data.length > 0 && <SeismicPlot
+          step={step}
+          data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}
+          nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
+          kernel={step === 1 ? bandPassKernel(ts, data) : step === 2 ? gaussianKernel(std, ts, filteredData) : []}
+          peaks={peaksData}
+          slopes={slopesData}
+          level={level}
+          peakLocation={peakLocation}
+        />
+      }
+
     </div>
   );
 }

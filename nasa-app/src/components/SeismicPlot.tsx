@@ -1,12 +1,11 @@
 import React, { useState, useEffect, Component } from 'react';
 import { Data, ChartInfo, PeakInfo } from '../types/Data';
-import { bandPass } from '../helpers/bandPass';
-import { peaksFinder } from '../helpers/peaksFinder';
-import { gaussianSmoothing } from '../helpers/gaussianSmoothing';
+
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
+let slidingSpeed = 100; // samples per frame
 
 interface SeismicPlotProps {
   step: number;
@@ -91,14 +90,14 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx } = this.state;
+    const { step, data, nextData, kernel, idx, peakLocation } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
       if (kernel.length > 0) {
         let currentX = 0;
         if (idx < data.length && idx < nextData.length) {
-          let stride = idx + 50 < data.length ? 50 : data.length - idx;
+          let stride = idx + slidingSpeed < data.length ? slidingSpeed : data.length - idx;
           for (let i = 0; i < stride; i++) {
             data[idx + i] = nextData[idx + i];
           }
@@ -129,7 +128,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         if (kernel.length > 0) {
           let currentX = 0;
           if (idx < data.length && idx < nextData.length) {
-            let stride = idx + 50 < data.length ? 50 : data.length - idx;
+            let stride = idx + slidingSpeed < data.length ? slidingSpeed : data.length - idx;
             for (let i = 0; i < stride; i++) {
               data[idx + i] = nextData[idx + i];
             }
@@ -159,7 +158,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   render() {
-    const { step, data, kernel, peaks, slopes, level } = this.state;
+    const { step, data, kernel, peaks, slopes, level, peakLocation } = this.state;
 
     // Render based on step value
     if (step === 0) {
@@ -232,6 +231,26 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
       slopes.forEach((slopeData: Data[]) => {
         options.data.push({ type: 'line', dataPoints: slopeData });
+      });
+
+      return (
+        <div>
+          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
+        </div>
+      );
+    }
+
+    else if (step === 4) {
+      const options = {
+        title: { text: 'Mark Seismic Positions' },
+        axisX: { title: 'Time', stripLines: [] as { thickness: number; value: number; color: string }[] },
+        axisY: { title: 'Amplitude' },
+        data: [
+          { type: 'line', dataPoints: data },
+        ]
+      };
+      peakLocation.forEach((location: number) => {
+        options.axisX.stripLines.push({ thickness: 2, value: location , color: 'red' });
       });
 
       return (
