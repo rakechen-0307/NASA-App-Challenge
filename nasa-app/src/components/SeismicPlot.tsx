@@ -7,7 +7,6 @@ import { gaussianSmoothing } from '../helpers/gaussianSmoothing';
 import CanvasJSReact from '@canvasjs/react-charts';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
-let idx = 0;
 
 interface SeismicPlotProps {
   step: number;
@@ -54,7 +53,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     };
 
     this.chart = null;
-    this.updateInterval = 100;
+    this.updateInterval = 33;
     this.updateChart = this.updateChart.bind(this);
   }
 
@@ -97,14 +96,20 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Bandpass filter logic
     if (step === 1) {
       if (kernel.length > 0) {
+        let currentX = 0;
         if (idx < data.length && idx < nextData.length) {
-          data[idx] = nextData[idx];
-          this.setState({ idx: idx + 1 });
+          let stride = idx + 50 < data.length ? 50 : data.length - idx;
+          for (let i = 0; i < stride; i++) {
+            data[idx + i] = nextData[idx + i];
+          }
+          currentX = data[idx + stride - 1].x;
+          this.setState({ idx: idx + stride });
         }
 
         if (idx < data.length) {
+          let diff = currentX - kernel[kernel.length - 1].x;
           for (let i = 0; i < kernel.length; i++) {
-            kernel[i].x += 1;
+            kernel[i].x += diff;
           }
         }
       }
@@ -122,17 +127,21 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         });
       } else if (innerStep === 1) {
         if (kernel.length > 0) {
+          let currentX = 0;
           if (idx < data.length && idx < nextData.length) {
-            data[idx] = nextData[idx];
-            this.setState({ idx: idx + 1 });
-          }
-
-          if (idx < data.length) {
-            for (let i = 0; i < kernel.length; i++) {
-              kernel[i].x += 1;
+            let stride = idx + 50 < data.length ? 50 : data.length - idx;
+            for (let i = 0; i < stride; i++) {
+              data[idx + i] = nextData[idx + i];
             }
-          } else {
-            this.setState({ innerStep: 2 });
+            currentX = data[idx + stride - 1].x;
+            this.setState({ idx: idx + stride });
+          }
+  
+          if (idx < data.length) {
+            let diff = currentX - kernel[kernel.length - 1].x;
+            for (let i = 0; i < kernel.length; i++) {
+              kernel[i].x += diff;
+            }
           }
         }
       } else if (innerStep === 2) {

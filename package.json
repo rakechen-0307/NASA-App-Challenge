@@ -1,0 +1,9 @@
+{
+	"dependencies": {
+		"@types/ndarray": "^1.0.14",
+		"buffer": "^6.0.3",
+		"ndarray": "^1.0.19",
+		"ndarray-convolve": "^2.0.0",
+		"ndarray-ops": "^1.2.2"
+	}
+}

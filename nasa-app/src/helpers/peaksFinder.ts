@@ -5,7 +5,6 @@ export const peaksFinder = (data: number[], std: number, widthFactor: number) =>
     ) / data.length);   // standard deviation
     const level = mu + sigma * std;
 
-    let values = [];
     let locations = [];
 
     // Detect crossing points
@@ -38,8 +37,7 @@ export const peaksFinder = (data: number[], std: number, widthFactor: number) =>
 
         // Store Results
         locations.push([left_index, max_index, right_index]);
-        values.push(max_value);
     }
     
-    return { values, locations, level };
+    return { locations, level };
 } 
