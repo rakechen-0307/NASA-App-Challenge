@@ -5,7 +5,8 @@ import { Data, ChartInfo, PeakInfo } from '../types/Data';
 import CanvasJSReact from '@canvasjs/react-charts';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
-let slidingSpeed = 100; // samples per frame
+const slidingSpeed = 100; // samples per frame
+const viewportSize = 100; // zoom in view size (samples)
 
 interface SeismicPlotProps {
   step: number;
@@ -29,9 +30,11 @@ interface SeismicPlotState {
   peakLocation: number[];
   idx: number;
   innerStep: number;
+  minView: number,
+  maxView: number,
 }
 
-class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
+class SeismicSubPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   chart: any;
   updateInterval: number;
   intervalId: any;
@@ -49,20 +52,18 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       level: props.level,
       peakLocation: props.peakLocation,
       idx: 0,
-      innerStep: 0
+      innerStep: 0,
+      minView: 0,
+      maxView: viewportSize,
     };
-
     this.chart = null;
     this.updateInterval = 33;
     this.updateChart = this.updateChart.bind(this);
+    this.intervalId = null;
   }
 
   componentDidMount() {
     this.intervalId = setInterval(this.updateChart, this.updateInterval);
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.intervalId);
   }
 
   componentDidUpdate(prevProps: SeismicPlotProps) {
@@ -93,7 +94,9 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       this.chart.render();
     }
   }
-
+  componentWillUnmount() {
+    clearInterval(this.intervalId);
+  }
   updateChart() {
     const { step, data, nextData, kernel, idx, peakLocation } = this.state;
 
@@ -157,62 +160,28 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           data: centeredVelocity.map((y, i) => ({ x: data[i].x, y }))
         });
       }
-
       this.chart.render();
     }
   }
 
   render() {
-    const { step, data, kernel, peaks, slopes, level, peakLocation } = this.state;
+    const { step, data, kernel, minView, maxView, idx } = this.state;
 
     // Render based on step value
-    if (step === 0) {
-      const options = {
-        theme: "dark1",
-        backgroundColor: "black",
-        axisX: { 
-          title: 'Time (s)',
-          color: "#34dbeb",
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
-        },
-        axisY: { 
-          title: 'Amplitude (m/s)',
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
-        },
-        data: [{
-          type: 'line',
-          dataPoints: data,
-          color: "#34dbeb",
-        }]
-      };
-
-      return (
-        <div>
-          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
-        </div>
-      );
-    }
-
     // Bandpass filter rendering
-    else if (step === 1) {
+    if (step === 1) {
+      // console.log(data[idx - Math.floor(viewportSize/2)]);
+      const halfViewportSize = Math.floor(viewportSize / 2);
+      const viewportMinimumIndex = Math.max(0, idx - halfViewportSize);
+      const viewportMaximumIndex = Math.min(data.length - 1, idx + halfViewportSize);
       const options = {
         title: { text: 'Bandpass Filter' },
-        axisX: { title: 'Time' },
-        axisY: { title: 'Amplitude' },
+        axisX: { 
+          title: 'Time (s)',
+          viewportMinimum: data[viewportMinimumIndex].x,
+          viewportMaximum: data[viewportMaximumIndex].x,
+        },
+        axisY: { title: 'Amplitude (m/s)' },
         data: [
           { type: 'line', dataPoints: data },
           { type: 'line', dataPoints: kernel }
@@ -228,10 +197,17 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
     // Gaussian smoothing rendering
     else if (step === 2) {
+      const halfViewportSize = Math.floor(viewportSize / 2);
+      const viewportMinimumIndex = Math.max(0, idx - halfViewportSize);
+      const viewportMaximumIndex = Math.min(data.length - 1, idx + halfViewportSize);
       const options = {
         title: { text: 'Gaussian Smoothing' },
-        axisX: { title: 'Time' },
-        axisY: { title: 'Amplitude' },
+        axisX: { 
+          title: 'Time (s)',
+          viewportMinimum: viewportMinimumIndex,
+          viewportMaximum: viewportMaximumIndex,
+        },
+        axisY: { title: 'Amplitude (m/s)' },
         data: [
           { type: 'line', dataPoints: data },
           { type: 'line', dataPoints: kernel }
@@ -244,54 +220,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         </div>
       );
     }
-
-    // Peaks and slopes rendering
-    else if (step === 3) {
-      const options = {
-        title: { text: 'Find Peaks & Slopes' },
-        axisX: { title: 'Time' },
-        axisY: {
-          title: 'Amplitude',
-          stripLines: [{ value: level, thickness: 2, color: 'green' }]
-        },
-        data: [
-          { type: 'line', dataPoints: data },
-          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: 'red' }
-        ]
-      };
-
-      slopes.forEach((slopeData: Data[]) => {
-        options.data.push({ type: 'line', dataPoints: slopeData });
-      });
-
-      return (
-        <div>
-          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
-        </div>
-      );
-    }
-
-    else if (step === 4) {
-      const options = {
-        title: { text: 'Mark Seismic Positions' },
-        axisX: { title: 'Time', stripLines: [] as { thickness: number; value: number; color: string }[] },
-        axisY: { title: 'Amplitude' },
-        data: [
-          { type: 'line', dataPoints: data },
-        ]
-      };
-      peakLocation.forEach((location: number) => {
-        options.axisX.stripLines.push({ thickness: 2, value: location , color: 'red' });
-      });
-
-      return (
-        <div>
-          <CanvasJSChart options={options} onRef={(ref: any) => (this.chart = ref)} />
-        </div>
-      );
-    }
     return null;
   }
 }
 
-export default SeismicPlot;
+export default SeismicSubPlot;

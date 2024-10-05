@@ -149,18 +149,6 @@ function App() {
           peakLocation={peakLocation}
         />
       }
-      {data.length > 0 && <SeismicPlot
-          step={step}
-          data={step === 0 ? data : step === 1 ? data : step === 2 ? filteredData : step === 3 ? normalizedData : step === 4 ? data : []}
-          nextData={step === 1 ? filteredData : step === 2 ? smoothedData : []}
-          kernel={step === 1 ? bandPassKernel(ts, data) : step === 2 ? gaussianKernel(std, ts, filteredData) : []}
-          peaks={peaksData}
-          slopes={slopesData}
-          level={level}
-          peakLocation={peakLocation}
-        />
-      }
-
     </div>
   );
 }
