@@ -3,10 +3,12 @@ import { Data, ChartInfo, PeakInfo } from '../types/Data';
 
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
+import { lerp1D, lerp2D } from '../helpers/lerp';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
 let slidingSpeed = 100; // samples per frame
-const levelFrames = 50;
+const step3Frames = [20, 10, 30];
+const maxMarkerSize = 10;
 
 interface SeismicPlotProps {
   step: number;
@@ -30,7 +32,11 @@ interface SeismicPlotState {
   peakLocation: number[];
   idx: number;
   innerStep: number;
+  // For animation
   currentLevel: number;
+  currentMarkerSize: number;
+  currentSlopes: Data[][];
+  slopeVisible: boolean;
 }
 
 class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
@@ -53,6 +59,9 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       idx: 0,
       innerStep: 0,
       currentLevel: 0,
+      currentMarkerSize: 0,
+      currentSlopes: [],
+      slopeVisible: false,
     };
 
     this.chart = null;
@@ -79,6 +88,11 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       prevProps.slopes !== this.props.slopes ||
       prevProps.level !== this.props.level
     ) {
+      let initialSlopes = [];
+      for (let i = 0; i < this.props.slopes.length; i++) {
+        initialSlopes.push([this.props.slopes[i][1], this.props.slopes[i][1], this.props.slopes[i][1]]);
+      }
+      
       this.setState({
         step: this.props.step,
         data: [...this.props.data],
@@ -90,6 +104,9 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         peakLocation: this.props.peakLocation,
         idx: 0, // Reset the index when new data comes in
         currentLevel: 0,
+        currentMarkerSize: 0,
+        currentSlopes: initialSlopes,
+        slopeVisible: false,
       });
     }
 
@@ -99,7 +116,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx, currentLevel, level } = this.state;
+    const { step, data, nextData, kernel, idx, currentLevel, level, currentMarkerSize, currentSlopes, slopes } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
@@ -164,18 +181,32 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
       this.chart.render();
     }
-
+    // Find peaks
     else if (step === 3) {
-      if (idx < levelFrames) {
-        let newLevel = currentLevel + (level - currentLevel) * idx / levelFrames;
+      if (idx < step3Frames[0]) {
+        let newLevel = lerp1D(currentLevel, level, idx, step3Frames[0]);
         this.setState({ idx: idx + 1, currentLevel: newLevel });
+        this.chart.render();
+      }
+      else if (idx < step3Frames[0] + step3Frames[1]) {
+        let newMarkerSize = lerp1D(currentMarkerSize, maxMarkerSize, idx - step3Frames[0], step3Frames[1]);
+        this.setState({ idx: idx + 1, currentMarkerSize: newMarkerSize });
+        this.chart.render();
+      }
+      else if (idx < step3Frames[0] + step3Frames[1] + step3Frames[2]) {
+        let newSlopes = [...currentSlopes];
+        for (let i = 0; i < slopes.length; i++) {
+          newSlopes[i][0] = lerp2D(currentSlopes[i][0], slopes[i][0], idx - step3Frames[0] - step3Frames[1], step3Frames[2]);
+          newSlopes[i][2] = lerp2D(currentSlopes[i][2], slopes[i][2], idx - step3Frames[0] - step3Frames[1], step3Frames[2]);        
+        }
+        this.setState({ idx: idx + 1, currentSlopes: newSlopes, slopeVisible: true });
         this.chart.render();
       }
     }
   }
 
   render() {
-    const { step, data, kernel, peaks, slopes, level, peakLocation, currentLevel } = this.state;
+    const { step, data, kernel, peaks, currentSlopes, currentMarkerSize, peakLocation, currentLevel, slopeVisible } = this.state;
 
     // Render based on step value
     if (step === 0) {
@@ -267,13 +298,13 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           stripLines: [{ value: currentLevel, thickness: 2, color: 'green' }]
         },
         data: [
-          { type: 'line', dataPoints: data },
-          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: 'red' }
+          { type: 'line', dataPoints: data , visible: true},
+          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: 'red', markerSize: currentMarkerSize }
         ]
       };
 
-      slopes.forEach((slopeData: Data[]) => {
-        options.data.push({ type: 'line', dataPoints: slopeData });
+      currentSlopes.forEach((slopeData: Data[]) => {
+        options.data.push({ type: 'line', dataPoints: slopeData, visible: slopeVisible });
       });
 
       return (
