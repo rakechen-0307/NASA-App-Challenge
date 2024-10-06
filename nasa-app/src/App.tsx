@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import FileUploadButton from './components/MUI-Fileinput';
 import { Data } from './types/Data';
 import SeismicPlot from './components/SeismicPlot';
-import Papa from 'papaparse';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
@@ -44,8 +43,8 @@ function App() {
   const [defaultEvent, setDefaultEvent] = useState<string>('lunar 1');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
   const [dataUrl, setDataUrl] = useState<string>('');
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
-  let defualtData = "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0";
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -92,7 +91,6 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
-      defualtData = "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0";
       ts = 0.1509;
       std = 2;
       smoothingStd = 600;
@@ -108,7 +106,6 @@ function App() {
       setDefaultEvent("lunar 1");
     }
     else if (planet === "mars") {
-      defualtData = "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0";
       ts = 0.05;
       std = 1.3;
       smoothingStd = 3e2;
@@ -222,9 +219,11 @@ function App() {
     }
 
     workerRef.current?.postMessage({ loadedData, params });
+    setIsLoaded(false);
   };
 
   const handleUseDefault = (dataURL: string) => {
+    setIsLoaded(true);
     fetch(dataURL)
       .then(response => response.text())  // Convert response to text
       .then(jsonData => {
@@ -246,12 +245,6 @@ function App() {
       setDataUrl(urls_mars[events_mars.indexOf(event.target.value)]);
     }
   };
-
-  // const musicUrls = {
-  //   lunar: "assets/indian.mp3",
-  //   mars: "assets/indian.mp3"
-  // };
-  // <Music urls={musicUrls} currentTrack={planet} />
 
   return (
     <ThemeProvider theme={theme}>
@@ -342,7 +335,7 @@ function App() {
               <p className='title-text'>Select Seismic Data</p>
               <p className='description-text'>Upload your own CSV file or select and load a default event data.</p>
               <Grid item>
-                <FileUploadButton onFileLoad={handleFileLoad} />
+                <FileUploadButton onFileLoad={handleFileLoad} isDisabled={isLoaded} setDisabled={setIsLoaded} />
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
                 <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Selected Event</InputLabel>
                   <Select
@@ -375,7 +368,7 @@ function App() {
                 </FormControl>
                 <Button variant="contained"
                   sx={{ backgroundColor: "#3c8eaa", color: "white" }}
-                  onClick={() => handleUseDefault(dataUrl)}>
+                  onClick={() => handleUseDefault(dataUrl)} disabled={isLoaded}>
                   Load Default Event
                 </Button>
               </Grid>
@@ -387,10 +380,6 @@ function App() {
             </div>
           }
         </div>
-
-        {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}
-        {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>*/}
-        {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>*/}
       </Box>
 
       {/* Footer */}
@@ -406,9 +395,6 @@ function App() {
         </Toolbar>
       </AppBar>
     </ThemeProvider>
-    // <h1>CSV Import in React.js</h1>
-    // <FileInput onFileLoad={handleFileLoad} />
-    // {data.length > 0 && <SeismicPlot data={data} std={2} widthFactor={0.3} smoothingStd={600} />}
   );
 }
 

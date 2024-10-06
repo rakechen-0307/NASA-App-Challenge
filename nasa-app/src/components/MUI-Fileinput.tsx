@@ -5,14 +5,17 @@ import Papa from "papaparse";
 
 interface FileUploadButtonProps {
   onFileLoad: (data: any[]) => void;
+  isDisabled: boolean;
+  setDisabled: any;
 }
 
-const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad }) => {
+const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad, isDisabled, setDisabled }) => {
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (file) {
+      setDisabled(true);
       Papa.parse(file, {
         complete: (result) => {
           // Assuming you want to process data except the header
@@ -46,6 +49,7 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad }) => {
         variant="outlined" 
         startIcon={<UploadIcon />} 
         onClick={handleButtonClick}
+        disabled={isDisabled}
         // sx = {{mb: 2}}
       >
         Upload Your CSV
