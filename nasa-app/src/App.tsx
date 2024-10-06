@@ -1,12 +1,23 @@
 import './App.css';
 import React, { useEffect, useState, useRef } from 'react';
 import FileInput from './components/FileInput';
+import FileUploadButton from './components/MUI-Fileinput';
 import { Data } from './types/Data';
 import SeismicPlot from './components/SeismicPlot';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
+import { AppBar, ThemeProvider, Toolbar } from '@mui/material';
+
+// theme import
+import theme from './theme';
+import { Box, Typography, Grid, Button, IconButton, Stack } from '@mui/material';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InfoIcon from '@mui/icons-material/Info';
+import { MaterialUISwitch } from './components/switches';
+
 import { Planet } from './types/Three';
+import { alignProperty } from '@mui/material/styles/cssUtils';
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -29,12 +40,12 @@ function App() {
   let slopeThreshold = 5e-13;
   let ratioThreshold = 2;
   let widthFactor = 0.3;
-  let bp_coef = Array(-0.015468212,0.005414803,-0.021013882,-0.00472374,4.77E-02,
-                      0.026547969,0.002031613,0.055068256,0.038977124,-0.058782592,
-                      -0.034768745,0.002012645,-0.170557003,-0.224228809,0.151489773,
-                      0.437803402,0.151489773,-0.224228809,-0.170557003,0.002012645,
-                      -0.034768745,-0.058782592,0.038977124,0.055068256,0.002031613,
-                      0.026547969,0.047658812,-4.72E-03,-0.021013882,0.005414803,-0.015468212);
+  let bp_coef = Array(-0.015468212, 0.005414803, -0.021013882, -0.00472374, 4.77E-02,
+    0.026547969, 0.002031613, 0.055068256, 0.038977124, -0.058782592,
+    -0.034768745, 0.002012645, -0.170557003, -0.224228809, 0.151489773,
+    0.437803402, 0.151489773, -0.224228809, -0.170557003, 0.002012645,
+    -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
+    0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
 
   useEffect(() => {
     if (planet === "lunar") {
@@ -44,12 +55,12 @@ function App() {
       slopeThreshold = 5e-13;
       ratioThreshold = 1.5;
       widthFactor = 0.3;
-      bp_coef = Array(-0.015468212,0.005414803,-0.021013882,-0.00472374,4.77E-02,
-                      0.026547969,0.002031613,0.055068256,0.038977124,-0.058782592,
-                      -0.034768745,0.002012645,-0.170557003,-0.224228809,0.151489773,
-                      0.437803402,0.151489773,-0.224228809,-0.170557003,0.002012645,
-                      -0.034768745,-0.058782592,0.038977124,0.055068256,0.002031613,
-                      0.026547969,0.047658812,-4.72E-03,-0.021013882,0.005414803,-0.015468212);
+      bp_coef = Array(-0.015468212, 0.005414803, -0.021013882, -0.00472374, 4.77E-02,
+        0.026547969, 0.002031613, 0.055068256, 0.038977124, -0.058782592,
+        -0.034768745, 0.002012645, -0.170557003, -0.224228809, 0.151489773,
+        0.437803402, 0.151489773, -0.224228809, -0.170557003, 0.002012645,
+        -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
+        0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
     }
     else if (planet === "mars") {
       ts = 0.05;
@@ -58,11 +69,11 @@ function App() {
       slopeThreshold = 5e-13;
       ratioThreshold = 1.5;
       widthFactor = 0.3;
-      bp_coef = Array(-0.015753723,-0.039009518,-0.032765272,-0.006810152,-0.001507097,-0.034209679,
-                      -0.069394178,-0.059643647,-0.012730875,0.005371116,-0.049134331,-0.124987344,
-                      -0.110448191,0.04424677,0.249863191,0.345144188,0.249863191,0.04424677,-0.110448191,
-                      -0.124987344,-0.049134331,0.005371116,-0.012730875,-0.059643647,-0.069394178,
-                      -0.034209679,-0.001507097,-0.006810152,-0.032765272,-0.039009518,-0.015753723);
+      bp_coef = Array(-0.015753723, -0.039009518, -0.032765272, -0.006810152, -0.001507097, -0.034209679,
+        -0.069394178, -0.059643647, -0.012730875, 0.005371116, -0.049134331, -0.124987344,
+        -0.110448191, 0.04424677, 0.249863191, 0.345144188, 0.249863191, 0.04424677, -0.110448191,
+        -0.124987344, -0.049134331, 0.005371116, -0.012730875, -0.059643647, -0.069394178,
+        -0.034209679, -0.001507097, -0.006810152, -0.032765272, -0.039009518, -0.015753723);
     }
   }, [planet]);
 
@@ -73,10 +84,10 @@ function App() {
     workerRef.current = new Worker(new URL('./helpers/fileProcessWorker.ts', import.meta.url));
 
     workerRef.current.onmessage = (e) => {
-      const { downDataPoints, downFilteredDataPoint, downSmoothedDataPoint, 
-              downNormalizedDataPoint, peaks, slopes, level, startLocations,
-              endLocations } = e.data;
-      
+      const { downDataPoints, downFilteredDataPoint, downSmoothedDataPoint,
+        downNormalizedDataPoint, peaks, slopes, level, startLocations,
+        endLocations } = e.data;
+
       setProcessedData({
         data: downDataPoints,
         filteredData: downFilteredDataPoint,
@@ -101,16 +112,16 @@ function App() {
   const handlePlanetSwitch = () => {
     if (planet === "lunar") {
       setPlanet("mars");
-      threeController.triggerUpdatePlanetMaterial(500, Planet.MARS);
+      threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS);
     }
     else if (planet === "mars") {
       setPlanet("lunar");
-      threeController.triggerUpdatePlanetMaterial(500, Planet.MOON);
+      threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON);
     }
   }
 
-  const bandPassKernel = (ts: number, data: Data[], bp_coef: number[]) : Data[] => {
-    let kernel = bp_coef.map((value, i) => ({ x: -i*ts, y: value }));
+  const bandPassKernel = (ts: number, data: Data[], bp_coef: number[]): Data[] => {
+    let kernel = bp_coef.map((value, i) => ({ x: -i * ts, y: value }));
 
     const maxDataValue = Math.max(...data.map(d => d.y));
     const maxKernelValue = Math.max(...kernel.map(k => k.y));
@@ -137,7 +148,7 @@ function App() {
     const maxKernelValue = Math.max(...kernel);
 
     kernel = kernel.map((value, i) => ({ x: x[i], y: value * 0.5 * (maxDataValue / maxKernelValue) }));
-  
+
     return kernel;
   }
 
@@ -162,22 +173,72 @@ function App() {
   };
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
       <ThreeSimulator />
-      <h1>Seismic Waveform Detection</h1>
-      <div>
-        <label>
-          <input type="checkbox" onChange={handlePlanetSwitch} />
-        </label>
-      </div>
-      <div className='button-flex'>
-        <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
-        <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
-        <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
-        <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
-      </div>
-      <FileInput onFileLoad={handleFileLoad} />
-      {processedData.data.length > 0 && <SeismicPlot
+      <Box sx={{ backgroundColor: "transparent", minHeight: "100vh", padding: "30px" }}>
+        <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+          <Grid item xs={12} md={7}>
+            <Typography variant="h3" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "bold", fontWeight: 700, color: "white", mr: 4 }}>
+              Seismic Waveform Detection
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <Stack direction="row" spacing={2} alignItems="center" justifyContent="flex-end">
+              <Typography variant="h4" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "italic", fontWeight: 300, color: "white" }}>
+                by Reaching Stars
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <IconButton aria-label="delete" sx={{ color: "white" }}>
+                  <GitHubIcon sx={{ fontSize: 40 }} />
+                </IconButton>
+                <IconButton aria-label="delete" sx={{ color: "white" }}>
+                  <InfoIcon sx={{ fontSize: 40 }} />
+                </IconButton>
+              </Stack>
+            </Stack>
+          </Grid>
+        </Grid>
+        <Typography variant="h6" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "normal", fontWeight: 250, color: "white", mb: 1 }}>
+          This is a demo of our seismic waveform detection algorithm. Upload a CSV file and choose the step you want to observe !
+        </Typography>
+
+        {/* Steps */}
+        <Grid container justifyContent="left" spacing={1} sx={{ mb: 4 }}>
+          <Grid item>
+            <FileUploadButton onFileLoad={handleFileLoad} />
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(1)}>
+              Step 1: Bandpass Filter
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(2)}>
+              Step 2: Gaussian Smoothing
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(3)}>
+              Step 3: Find Peaks & Slopes
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(4)}>
+              Step 3: Mark Seismic Positions
+            </Button>
+          </Grid>
+        </Grid>
+
+        {/*plotting*/}
+        {processedData.data.length > 0 && <SeismicPlot
           step={step}
           data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
           nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
@@ -187,12 +248,29 @@ function App() {
           level={processedData.level}
           startLocations={processedData.startLocations}
           endLocations={processedData.endLocations}
-        />
-      }
-      {/*<button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>*/}
-      {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MARS)}>Toggle Mars</button>*/}
-      {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(500, Planet.MOON)}>Toggle Moon</button>*/}
-    </div>
+        />}
+
+        <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
+        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>
+        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>
+      </Box>
+
+      {/* Footer */}
+      <AppBar position="fixed" color="transparent" sx={{ top: 'auto', bottom: 0, boxShadow: 'none' }}>
+        <Toolbar>
+          <MaterialUISwitch defaultChecked onChange={handlePlanetSwitch} />
+          <Typography variant="body1" sx={{ fontFamily: 'Prompt, sans-serif', color: 'white', ml: 2 }}>
+            {planet === "lunar" ? "Moon" : "Mars"}
+          </Typography>
+          {/* <Typography variant="body1" sx={{ flexGrow: 1, textAlign: 'right', color: 'white' }}>
+            © 2024 Reaching Stars
+          </Typography> */}
+        </Toolbar>
+      </AppBar>
+    </ThemeProvider>
+    // <h1>CSV Import in React.js</h1>
+    // <FileInput onFileLoad={handleFileLoad} />
+    // {data.length > 0 && <SeismicPlot data={data} std={2} widthFactor={0.3} smoothingStd={600} />}
   );
 }
 

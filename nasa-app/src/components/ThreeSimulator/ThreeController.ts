@@ -47,11 +47,11 @@ class ThreeController {
   // world: THREE.Mesh;
 
   light: THREE.DirectionalLight;
-  flareLight: THREE.PointLight;
+  // flareLight: THREE.PointLight;
   lightPosition: PolarPosition;
 
   controls: Controls;
-  settings: Settings;
+  // settings: Settings;
 
   isPlaying: boolean;
   initialized: boolean;
@@ -69,7 +69,7 @@ class ThreeController {
     this.clock = new THREE.Clock();
 
     this.light = this.generateLight();
-    this.flareLight = this.generateLensflareLight(this.light);
+    // this.flareLight = this.generateLensflareLight(this.light);
 
     this.lightPosition = { radius: 0, phi: 0, theta: 0 };
     this.updateLightPosition(
@@ -84,7 +84,7 @@ class ThreeController {
 
     // Initialize controls after the renderer is set up
     this.controls = this.generateControl();
-    this.settings = new Settings(this);
+    // this.settings = new Settings(this);
 
     // Data and status for playback
     this.isPlaying = false;
@@ -93,16 +93,16 @@ class ThreeController {
     this.initialized = false;
   }
 
-  triggerQuake(amplitude: number, profile: number[], sampleRate: number) {
-    this.controls.quakeControls.trigger(amplitude, profile, sampleRate);
+  triggerQuake(amplitude: number, profile: number[], upsample: number, downsample: number) {
+    this.controls.quakeControls.trigger(amplitude, profile, upsample, downsample);
   }
 
-  triggerRandomQuake(amplitude: number, length: number, sampleRate: number, decay: number = 0.0) {
-    this.controls.quakeControls.triggerRandom(amplitude, length, sampleRate, decay);
+  triggerRandomQuake(amplitude: number, length: number, upsample: number, decay: number = 0.0) {
+    this.controls.quakeControls.triggerRandom(amplitude, length, upsample, decay);
   }
 
-  triggerUpdatePlanetMaterial(transitionCycle: number, planet: Planet) {
-    this.controls.switchPlanet.trigger(transitionCycle, planet);
+  triggerUpdatePlanetMaterial(transitionCycle0: number, transitionCycle1: number, planet: Planet) {
+    this.controls.switchPlanet.trigger(transitionCycle0, transitionCycle1, planet);
   }
 
   /**
@@ -175,7 +175,7 @@ class ThreeController {
     const lightPosition = PolarToCartesian(this.lightPosition);
 
     this.light.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
-    this.flareLight.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
+    // this.flareLight.position.set(lightPosition.x, lightPosition.y, lightPosition.z);
   }
 
   generateLensflareLight(light: THREE.DirectionalLight) {
