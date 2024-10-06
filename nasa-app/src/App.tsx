@@ -1,6 +1,5 @@
 import './App.css';
 import React, { useEffect, useState, useRef } from 'react';
-import FileInput from './components/FileInput';
 import FileUploadButton from './components/MUI-Fileinput';
 import { Data } from './types/Data';
 import SeismicPlot from './components/SeismicPlot';
@@ -11,17 +10,17 @@ import { AppBar, ThemeProvider, Toolbar } from '@mui/material';
 
 // theme import
 import theme from './theme';
-import { Box, Typography, Grid, Button, IconButton, Stack } from '@mui/material';
+import { Box, Typography, Grid, Button, IconButton, Stack, Fade } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoIcon from '@mui/icons-material/Info';
 import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
-import { alignProperty } from '@mui/material/styles/cssUtils';
 
 function App() {
   const [step, setStep] = useState<number>(0);
   const [planet, setPlanet] = useState<string>("lunar");
+  const [description, setDescription] = useState<string>("");
   const [processedData, setProcessedData] = useState<any>({
     data: [],
     filteredData: [],
@@ -46,6 +45,13 @@ function App() {
     0.437803402, 0.151489773, -0.224228809, -0.170557003, 0.002012645,
     -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
     0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
+
+  const descriptions = [
+    "1. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "3. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "4. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+  ]
 
   useEffect(() => {
     if (planet === "lunar") {
@@ -76,6 +82,10 @@ function App() {
         -0.034209679, -0.001507097, -0.006810152, -0.032765272, -0.039009518, -0.015753723);
     }
   }, [planet]);
+
+  useEffect(() => {
+    setDescription(descriptions[step - 1]);
+  }, [step])
 
   const quakeIntervalRef = useRef<any>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -250,6 +260,9 @@ function App() {
             startLocations={processedData.startLocations}
             endLocations={processedData.endLocations}
           />}
+        </div>
+        <div className='description'>
+            <p className='text'>{ description }</p>
         </div>
 
         {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}

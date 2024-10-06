@@ -2,16 +2,27 @@ html, body {
   overflow: hidden;
 }
 
-.button-flex {
-  flex: auto;
-}
-
 .data-div {
   position: absolute;
   width: 55vw;
-  height: 70vh;
+  height: 40vh;
   left: 2vw;
-  bottom: 1vh;
+  top: 30vh;
+}
+
+.description {
+  position: absolute;
+  width: 52vw;
+  height: 20vh;
+  left: 3vw;
+  top: 65vh;
+  padding: 10px;
+  border: 2px solid rgba(210, 210, 210, 0.601);
+  border-radius: 5px;
+}
+
+.text {
+  color: white;
 }
 
 .prompt-thin {
