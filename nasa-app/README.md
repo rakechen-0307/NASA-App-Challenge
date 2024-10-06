@@ -1,46 +1,49 @@
-# Getting Started with Create React App
+# 2024 NASA Space Apps Challenge - Seismic
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
+## Run the website
 
 In the project directory, you can run:
 
-### `npm start`
+```sh
+# under nasa-app/
+pnpm start
+```
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Instructions
 
-### `npm test`
+### Step 0: Load Data
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Click **STEP 0: LOAD DATA** button and select input data file in the panel below:
 
-### `npm run build`
+![Load data panel](https://storage.googleapis.com/nasa-app/assets/readme/step0.png)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+You can either upload your own data or select default data.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Step 1: Filtering
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![alt text](https://storage.googleapis.com/nasa-app/assets/readme/button1.png)
 
-### `npm run eject`
+Click step 1 button, then the original signal is filtered with a special tailored bandpass filter. It is clearly shown that several unwanted peaks of noises are filtered out. This helps us preliminarily exclude some noises that we are not interested in, leaving a cleaner profile.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Step 2: Smoothing
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![alt text](https://storage.googleapis.com/nasa-app/assets/readme/button2.png)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+In this step, we take the absolute value of the signal and then apply a Gaussian smoothing.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+These filters help us further reduce unwanted peaks. And the cleaner profile also allows simpler future analysis.
 
-## Learn More
+### Step 3: Detect Peaks
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+![alt text](https://storage.googleapis.com/nasa-app/assets/readme/button3.png)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Peaks with intensity over the orange threshold set by standard derivation of the signal were chosen for detection. Two green lines measure the rising and falling edge slope to the peaks chosen.
+
+### Step 4: Detection Result
+
+![alt text](https://storage.googleapis.com/nasa-app/assets/readme/button4.png)
+
+Peaks with just the right left and right slope, determined based on their ratio, exhibit the wanted exponential-decaying profile, and are picked out as the seismic events. The red line sets the onset to the seismic event.
