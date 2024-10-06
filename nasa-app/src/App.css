@@ -16,7 +16,7 @@ html, body {
   height: 20vh;
   left: 3vw;
   top: 65vh;
-  padding: 20px;
+  padding: 10px;
   border: 2px solid rgba(210, 210, 210, 0.601);
   border-radius: 5px;
 }
@@ -24,11 +24,18 @@ html, body {
 .description-text {
   color: white;
 }
+.title-text {
+  color: white;
+  font-size: 16px;
+  font-style: bold;
+  font-family: "Prompt", sans-serif;
+}
 
 .prompt-thin {
   font-family: "Prompt", sans-serif;
   font-weight: 100;
   font-style: normal;
+  font-family: "Prompt", sans-serif;
 }
 
 .prompt-extralight {

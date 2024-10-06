@@ -30,6 +30,7 @@ function App() {
   const [step, setStep] = useState<number>(0);
   const [planet, setPlanet] = useState<string>("lunar");
   const [description, setDescription] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
   const [processedData, setProcessedData] = useState<any>({
     data: [],
     filteredData: [],
@@ -59,11 +60,18 @@ function App() {
     -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
     0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
 
+  const titles = [
+    "Step 1. Original Data Through Bandpass Filter",
+    "Step 2. Envelope Extraction and Smoothing of Data",
+    "Step 3. Peaks from Envelope Selected, with Slopes Calculated for Thresholding",
+    "Step 4. Peaks Selected as Seismic Event and Onset Time Estimated"
+  ];
+
   const descriptions = [
-    "Here is the filtered data. The original signal is filtered with a special tailored least squares filter. It is clearly shown that several unwanted peaks of noises are filtered out. This helps us preliminarily exclude some noises that we are not interested in, leaving a cleaner profile.",
-    "Here is the data after envelope generation. In this step, we took the absolute value of the signal and then applied a Gaussian smoothing. These filters help us further reduce unwanted peaks. And the cleaner profile also allows simpler future analysis.",
-    "Here are the detected peaks and the corresponding slopes for rising and falling edges. The light blue line represents the detection threshold for intensity, the red vertical lines represent discovered peak positions, the green dotted lines represent the slopes to the left and right of the peaks, and the pink lines represent the magnitude of the slope ratio (left divided by right). These peaks are candidates to seismic events. We'll need to further check their slope in the next step.",
-    "Here are selected peaks, i.e. locations where our algorithm thinks there exists a seismic event. The red lines represent our detected start time based on the slope ratio, and the green boxes mark the duration of each seismic event. The left and right slopes are further extended to intersect the horizontal axis, marking the onset and the end to the seismic event."
+    "The original signal is filtered with a special tailored bandpass filter. It is clearly shown that several unwanted peaks of noises are filtered out. This helps us preliminarily exclude some noises that we are not interested in, leaving a cleaner profile.",
+    "In this step, we took the absolute value of the signal and then applied a Gaussian smoothing. These filters help us further reduce unwanted peaks. And the cleaner profile also allows simpler future analysis.",
+    "Peaks with intensity over the orange threshold set by standard derivation of the signal were chosen for detection. Two green lines measure the rising and falling edge slope to the peaks chosen.",
+    "Peaks with just the right left and right slope, determined based on their ratio, exhibit the wanted exponential-decaying profile, and are picked out as the seismic events. The red line sets the onset to the seismic event."
   ];
 
   const events = [
@@ -107,6 +115,7 @@ function App() {
 
   useEffect(() => {
     setDescription(descriptions[step - 1]);
+    setTitle(titles[step - 1]);
   }, [step]);
 
   const quakeIntervalRef = useRef<any>(null);
@@ -258,35 +267,35 @@ function App() {
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => setUploadMenu(true)}>
-              Upload CSV
+              Step 0: Load Data
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(1); setUploadMenu(false);}}>
-              Bandpass Filter
+              Step 1: Filtering
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(2); setUploadMenu(false);}}>
-              Gaussian Smoothing
+              Step 2: Smoothing
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(3); setUploadMenu(false);}}>
-              Find Peaks & Slopes
+              Step 3: Detect Peaks
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(4); setUploadMenu(false);}}>
-              Mark Seismic Positions
+              Step 4: Detection Result
             </Button>
           </Grid>
         </Grid>
@@ -308,37 +317,41 @@ function App() {
         <div className='description'>
           {uploadMenu?
             <div>
-              <p className='description-text'>Upload CSV</p>
-                <Grid item>
-                  {useDefault ? (
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: 120, color: "white" }}>
-                      <InputLabel id="default-event">Event</InputLabel>
-                      <Select
-                        labelId="default-event"
-                        id="demo-default-event"
-                        value={defaultEvent}
-                        onChange={handleDefaultValueChange}
-                        label="Age"
-                      >
-                        {events.map((event) => {
-                          return <MenuItem value={event}>{event}</MenuItem>
-                        })}
-                      </Select>
-                    </FormControl>
-                  ) : (
-                    <FileUploadButton onFileLoad={handleFileLoad} />
-                  )}
-                </Grid>
-                {/* <Grid item>
-                  <Button variant="contained"
-                    sx={{ backgroundColor: "#3c8eaa", color: "white" }}
-                    onClick={() => handleUseDefault(defualtData)}>
-                    {useDefault ? "Upload CSV" : "Use Default"}
-                  </Button>
-                </Grid> */}
+              <p className='title-text'>Select Seismic Data</p>
+              <p className='description-text'>Choose a default event or upload your own CSV file.</p>
+              <Grid item>
+                {useDefault ? (
+                  <FormControl variant="standard" sx={{ m: 1, minWidth: 120, color: "white" }}>
+                    <InputLabel id="default-event">Event</InputLabel>
+                    <Select
+                      labelId="default-event"
+                      id="demo-default-event"
+                      value={defaultEvent}
+                      onChange={handleDefaultValueChange}
+                      label="Age"
+                    >
+                      {events.map((event) => {
+                        return <MenuItem value={event}>{event}</MenuItem>
+                      })}
+                    </Select>
+                  </FormControl>
+                ) : (
+                  <FileUploadButton onFileLoad={handleFileLoad} />
+                )}
+              </Grid>
+              {/* <Grid item>
+                <Button variant="contained"
+                  sx={{ backgroundColor: "#3c8eaa", color: "white" }}
+                  onClick={() => handleUseDefault(defualtData)}>
+                  {useDefault ? "Upload CSV" : "Use Default"}
+                </Button>
+              </Grid> */}
             </div>
             : 
-            <p className='description-text'>{description}</p>
+            <div>
+              <p className='title-text'>{title}</p>
+              <p className='description-text'>{description}</p>
+            </div>
           }
         </div>
 
