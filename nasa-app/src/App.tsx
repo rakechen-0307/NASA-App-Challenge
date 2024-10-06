@@ -16,6 +16,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
+// import Music from './components/Music';
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -182,6 +183,12 @@ function App() {
     workerRef.current?.postMessage({ loadedData, params });
   };
 
+  // const musicUrls = {
+  //   lunar: "assets/indian.mp3",
+  //   mars: "assets/indian.mp3"
+  // };
+  // <Music urls={musicUrls} currentTrack={planet} />
+
   return (
     <ThemeProvider theme={theme}>
       <ThreeSimulator />
@@ -262,7 +269,7 @@ function App() {
           />}
         </div>
         <div className='description'>
-            <p className='text'>{ description }</p>
+          <p className='text'>{description}</p>
         </div>
 
         {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}
