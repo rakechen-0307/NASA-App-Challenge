@@ -38,6 +38,7 @@ The following parts are responsible for loading data and calculating important p
 In this step, we applied a bandpass filter to gather useful information hiding in the noisy signals. The bandwidth are decided based on gathered information and empirical modifications: 
 
 ![Filtered data vs unfiltered data](images/original_vs_filtered.png)
+
 *Figure 1: Original data and filtered data*
 
 It is clearly shown that several unwanted peaks are filted. This help us preliminary exclude some noises that we are not interested in. However, the signal is still too noisy to be analyzed.
@@ -51,6 +52,7 @@ In this step, we apply a series of filters to find the envelope to the signal, w
 3. Normalization: since most data are scale differently, we apply a normalization for the ease of further analysis.
 
 ![Filtered data vs unfiltered data](images/filtered_vs_envelope_generated.png)
+
 *Figure 2: Filtered data and information obtained from envelope generation.*
 
 **Step 3. Envelope Detection**
@@ -78,12 +80,15 @@ Under this assumption, we can detect the onset to the seismic events by calculat
 4. The onset and ending to the seismic event is further obtained by extending the two slopes and find their intercept to the horizontal axis.
 
 ![General envelope detection result](images/envelope_detection.png)
+
 *Figure 3: Result of envelope detection. The light blue line represents the detection threshold, the red vertical lines represent discovered peak positions, the green dotted lines represent the slopes to the left and right of the peaks, and the pink lines represent the magnitude of the slope ratio.*
 
 Besides finding the onset to the seismic event, our code also use the same idea to estimate the period of quake. However, this part is possible for further improvements.
 
 ![Final detection result](images/final_detection_result.png)
+
 *Figure 4. Results of seismic events detection. The red lines represent our detected starting time of seismic events, and the green box represents the duration of each event.*
 
 ![Complete result](images/full_result.png)
+
 *Figure 5. The complete result*
