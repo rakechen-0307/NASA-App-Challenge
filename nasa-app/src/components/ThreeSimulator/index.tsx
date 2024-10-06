@@ -1,7 +1,6 @@
-import { useEffect, useRef, useLayoutEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 import { threeController } from "./ThreeController";
 import { useResizeDetector } from "react-resize-detector";
-import { Planet } from "../../types/Three";
 
 
 export default function ThreeSimulator() {

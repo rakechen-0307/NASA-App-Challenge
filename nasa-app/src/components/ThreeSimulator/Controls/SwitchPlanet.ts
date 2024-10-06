@@ -44,7 +44,7 @@ class SwitchPlanet {
 
     constructor(controller: ThreeController) {
         this.controller = controller;
-        
+
         this.running = false;
         this.stage = 0;
         this.counter = 0;
@@ -62,14 +62,18 @@ class SwitchPlanet {
         this.stageCycle1 = 0;
     }
 
-    trigger(cycle: number, planet: Planet) {
+    trigger(cycle0: number, cycle1: number, planet: Planet) {
+        if (this.running) {
+            return;
+        }
+
         this.stage = 0;
         this.running = true;
         this.counter = 0;
         this.currentPosition = this.initialPosition.clone();
 
-        this.stageCycle0 = Math.floor(cycle * 0.3);
-        this.stageCycle1 = cycle - this.stageCycle0;
+        this.stageCycle0 = cycle0;
+        this.stageCycle1 = cycle1;
         this.targetPlanet = planet;
 
         this.deltaAngle = this.targetAngle / this.stageCycle0;
@@ -80,7 +84,7 @@ class SwitchPlanet {
         if (!this.running) {
             return;
         }
-        
+
         this.currentPosition.applyMatrix4(this.rotationMatrix);
         this.controller.updateLightPosition(CartesianToPolar(this.currentPosition));
 
@@ -90,7 +94,7 @@ class SwitchPlanet {
             this.counter = 0;
             this.deltaAngle = (Math.PI * 2 - this.targetAngle) / this.stageCycle1;
             this.rotationMatrix.makeRotationAxis(this.rotationAxis, this.deltaAngle);
-            
+
             this.controller.updatePlanetMaterial(this.targetPlanet);
         }
         if (this.stage === 1 && this.counter == this.stageCycle1) {

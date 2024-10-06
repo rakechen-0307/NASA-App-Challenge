@@ -1,11 +1,12 @@
 import * as THREE from "three";
+import { downsample } from "../../../helpers/downSample";
 
 class Quake {
     planet: THREE.Mesh;
     planetOriginalPosition: THREE.Vector3;
 
     profile: THREE.Vector3[];
-    sampleRate: number;
+    upsample: number;
     running: boolean;
     counter: number;
 
@@ -14,14 +15,28 @@ class Quake {
         this.planetOriginalPosition = new THREE.Vector3();
 
         this.profile = [];
-        this.sampleRate = 1000;
+        this.upsample = 1;
         this.running = false;
         this.counter = 0;
     }
 
-    trigger(amplitude: number, profile: number[], sampleRate: number) {
-        const maxValue = Math.max(...profile);
-        profile = profile.map((value) => value / maxValue * amplitude);
+    trigger(amplitude: number, profile: number[], upsample: number = 1, downsample: number = 1) {
+        if (this.running) {
+            return;
+        }
+
+        const mean = profile.reduce((sum, value) => sum + value, 0) / profile.length;
+        const std = Math.sqrt(profile.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / profile.length);
+        profile = profile.map((value) => (value - mean) / std * amplitude);
+
+        if (downsample > 1) {
+            profile = profile.reduce((arr: number[], value: number, index: number) => {
+                if (index % downsample === 0) {
+                    arr.push(value);
+                }
+                return arr;
+            }, []);
+        }
 
         this.planetOriginalPosition = this.planet.position.clone();
 
@@ -29,7 +44,7 @@ class Quake {
             const dir = new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize();
             return dir.multiplyScalar(value);
         });
-        this.sampleRate = sampleRate;
+        this.upsample = upsample;
         this.running = true;
         this.counter = 0;
     }
@@ -39,13 +54,13 @@ class Quake {
         const profile = new Array(length).fill(0).map(
             (_, index) => Math.random() * amplitude * Math.exp(-decay * index)
         );
-        this.trigger(amplitude, profile, sampleRate);
+        this.trigger(amplitude, profile, sampleRate, 0);
     }
 
     update() {
         if (this.running) {
             this.counter += 1;
-            const index = Math.floor(this.counter / this.sampleRate);
+            const index = Math.floor(this.counter / this.upsample);
             if (index >= this.profile.length - 1) {
                 this.counter = 0;
                 this.running = false;
@@ -55,7 +70,7 @@ class Quake {
 
             const nextIndex = index + 1;
 
-            const progress = (this.counter % this.sampleRate) / this.sampleRate;
+            const progress = (this.counter % this.upsample) / this.upsample;
             const currentProfile = this.profile[index];
             const nextProfile = this.profile[nextIndex];
 
