@@ -36,7 +36,6 @@ function App() {
     startLocations: [],
     endLocations: []
   });
-  const [fadeIn, setFadeIn] = useState<boolean>(false);  // descriptions' fade in effect
   const [useDefault, setUseDefault] = useState<boolean>(false);
 
   // let defualtData = lunarData;
@@ -288,7 +287,7 @@ function App() {
           />}
         </div>
         <div className='description'>
-          <p className='description-text'>{ description }</p>
+          <p className='description-text'>{description}</p>
         </div>
 
         {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}
