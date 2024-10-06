@@ -45,8 +45,9 @@ function App() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [processStatus, setProcessStatus] = useState<string>("");
   const [isLocked, setIsLocked] = useState<boolean>(true);
+  const [samplingTime, setSamplingTime] = useState<number>(0.1509);
 
-  let ts = 0.1509;
+  // let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
   let slopeThreshold = 5e-13;
@@ -92,7 +93,8 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
-      ts = 0.1509;
+      // ts = 0.1509;
+      setSamplingTime(0.1509);
       std = 2;
       smoothingStd = 600;
       slopeThreshold = 5e-13;
@@ -107,7 +109,8 @@ function App() {
       setDefaultEvent("lunar 1");
     }
     else if (planet === "mars") {
-      ts = 0.05;
+      // ts = 0.05;
+      setSamplingTime(0.05);
       std = 1.3;
       smoothingStd = 3e2;
       slopeThreshold = 5e-13;
@@ -210,7 +213,7 @@ function App() {
     }, 200);
 
     const params = {
-      ts: ts,
+      ts: samplingTime,
       std: std,
       smoothingStd: smoothingStd,
       slopeThreshold: slopeThreshold,
@@ -218,7 +221,7 @@ function App() {
       widthFactor: widthFactor,
       bp_coef: bp_coef
     }
-
+    console.log("samplingTime: ", samplingTime);
     workerRef.current?.postMessage({ loadedData, params });
     setIsLoaded(false);
     setIsLocked(false);
@@ -326,7 +329,7 @@ function App() {
             step={step}
             data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
             nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
-            kernel={step === 1 ? bandPassKernel(ts, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, ts, processedData.filteredData) : []}
+            kernel={step === 1 ? bandPassKernel(samplingTime, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, samplingTime, processedData.filteredData) : []}
             peaks={processedData.peaksData}
             slopes={processedData.slopesData}
             level={processedData.level}

@@ -171,6 +171,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         idx: 0, // Reset the index when new data comes in
         innerStep: 0,
         kernelLocation: 0,
+        maximum: this.props.data.reduce((max, p) => p.y > max ? p.y : max, this.props.data[0].y),
+        minimum: this.props.data.reduce((min, p) => p.y < min ? p.y : min, this.props.data[0].y),
         // Animation
         currentLevel: 0,
         currentMarkerSize: 0,
