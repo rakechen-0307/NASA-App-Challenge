@@ -12,17 +12,24 @@ const step2Frames = [20, 20]; // step2 animation frames
 const step3Frames = [20, 10, 30]; // step3 animation frames
 const step4Frames = 50; // step4 animation frames for each peak
 const maxMarkerSize = 10; // step3 peak marker size
+const axisColor = "#9b9ebd";
+const dataColor = "#57c5cf";
+
 
 const commonAxisConfig = {
-  color: "#34dbeb",
-  lineColor: "#34dbeb",
-  tickColor: "#34dbeb",
+  lineColor: axisColor,
+  tickColor: axisColor,
   gridColor: "#34dbeb",
-  labelFontColor: "#34dbeb",
-  titleFontColor: "#34dbeb",
-  lineThickness: 2,
+  labelFontColor: axisColor,
+  titleFontColor: axisColor,
+  lineThickness: 1,
   tickThickness: 1,
-  gridThickness: 1,
+  gridThickness: 0,
+};
+
+const commonPlotConfig = {
+  theme: "dark1",
+  backgroundColor: "transparent",
 };
 
 interface SeismicPlotProps {
@@ -298,7 +305,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         data: [{
           type: 'line',
           dataPoints: data,
-          color: "#34dbeb",
+          color: dataColor,
         }]
       };
 
@@ -326,7 +333,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           viewportMaximum: 1.5 * maximum,
         },
         data: [
-          { type: 'line', dataPoints: data, color: "#34dbeb" },
+          { type: 'line', dataPoints: data, color: dataColor },
         ]
       };
 
@@ -354,7 +361,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           viewportMaximum: maximum,
         },
         data: [
-          { type: 'line', dataPoints: currentData, color: "#34dbeb" },
+          { type: 'line', dataPoints: currentData, color: dataColor },
         ]
       };
 
@@ -380,7 +387,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           stripLines: [{ value: currentLevel, thickness: 2, color: '#fcc419' }]
         },
         data: [
-          { type: 'line', dataPoints: data, color: "#34dbeb", visible: true },
+          { type: 'line', dataPoints: data, color: dataColor, visible: true },
           { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: '#f03e3e', markerSize: currentMarkerSize },
         ]
       };
@@ -408,7 +415,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           ...commonAxisConfig,
         },
         data: [
-          { type: 'line', dataPoints: data, color: "#34dbeb" },
+          { type: 'line', dataPoints: data, color: dataColor },
         ]
       };
       currentPeakLocation.forEach((location: number) => {
