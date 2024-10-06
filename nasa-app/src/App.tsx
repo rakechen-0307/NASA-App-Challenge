@@ -300,11 +300,8 @@ function App() {
                 by Reaching Stars
               </Typography>
               <Stack direction="row" spacing={1}>
-                <IconButton aria-label="delete" sx={{ color: "white" }}>
+                <IconButton aria-label="delete" sx={{ color: "white" }} component="a" href="https://github.com/rakechen-0307/NASA-App-Challenge?fbclid=IwY2xjawFvc2JleHRuA2FlbQIxMAABHQQnToef05i99XLpRZ4nb9kwILYoNzaflfKjx1CbcBVH68vsVSnH1WHpoA_aem_ELvaLK6IJoU0ExaJGrmjng">
                   <GitHubIcon sx={{ fontSize: 40 }} />
-                </IconButton>
-                <IconButton aria-label="delete" sx={{ color: "white" }}>
-                  <InfoIcon sx={{ fontSize: 40 }} />
                 </IconButton>
               </Stack>
             </Stack>
