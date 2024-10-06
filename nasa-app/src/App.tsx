@@ -107,6 +107,18 @@ function App() {
         -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
       setDefaultEvent("lunar 1");
+      setProcessedData({
+        data: [],
+        filteredData: [],
+        smoothedData: [],
+        normalizedData: [],
+        peaksData: [],
+        slopesData: [],
+        level: 0,
+        startLocations: [],
+        endLocations: []
+      });
+      setStep(0);
     }
     else if (planet === "mars") {
       // ts = 0.05;
@@ -122,6 +134,18 @@ function App() {
         -0.124987344, -0.049134331, 0.005371116, -0.012730875, -0.059643647, -0.069394178,
         -0.034209679, -0.001507097, -0.006810152, -0.032765272, -0.039009518, -0.015753723);
       setDefaultEvent("mars 1");
+      setProcessedData({
+        data: [],
+        filteredData: [],
+        smoothedData: [],
+        normalizedData: [],
+        peaksData: [],
+        slopesData: [],
+        level: 0,
+        startLocations: [],
+        endLocations: []
+      });
+      setStep(0);
     }
   }, [planet]);
 
@@ -289,7 +313,7 @@ function App() {
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => setUploadMenu(true)}>
+              onClick={() => {setStep(0); setUploadMenu(true);}}>
               Step 0: Load Data
             </Button>
           </Grid>
@@ -340,7 +364,7 @@ function App() {
         <div className='description'>
           {uploadMenu?
             <div>
-              <p className='title-text'>Select Seismic Data</p>
+              <p className='title-text'>Step 1. Load Seismic Data</p>
               <p className='description-text'>Upload your own CSV file or select and load a default event data.</p>
               <Grid item>
                 <FileUploadButton 
