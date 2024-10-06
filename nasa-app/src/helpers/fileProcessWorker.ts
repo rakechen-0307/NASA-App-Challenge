@@ -16,6 +16,7 @@ const samples = 5000;
 self.onmessage = function(e) {
     const { loadedData, params } = e.data;
 
+    console.log(loadedData);
     // Load data
     const datapoints: Data[] = loadedData.map((point: any) => ({
       x: point[1],

@@ -18,8 +18,8 @@ import { MaterialUISwitch } from './components/switches';
 import { Planet } from './types/Three';
 // import Music from './components/Music';
 
-// import lunarData from './data/lunar.json';
-// import marsData from './data/mars.json';
+import lunarData from './data/lunar.json';
+import marsData from './data/mars.json';
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -38,7 +38,7 @@ function App() {
   });
   const [useDefault, setUseDefault] = useState<boolean>(false);
 
-  // let defualtData = lunarData;
+  let defualtData = lunarData;
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -61,7 +61,7 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
-      // defualtData = lunarData;
+      defualtData = lunarData;
       ts = 0.1509;
       std = 2;
       smoothingStd = 600;
@@ -76,7 +76,7 @@ function App() {
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
     }
     else if (planet === "mars") {
-      // defualtData = marsData;
+      defualtData = marsData;
       ts = 0.05;
       std = 1.3;
       smoothingStd = 3e2;
@@ -192,7 +192,9 @@ function App() {
 
   const handleUseDefault = (data: any) => {
     setUseDefault(!useDefault);
-    handleFileLoad(data.data);
+
+    const loadedData = data.data.map((d: any) => [0, d.x, d.y])
+    handleFileLoad(loadedData);
   }
   // const musicUrls = {
   //   lunar: "assets/indian.mp3",
@@ -236,11 +238,11 @@ function App() {
             <FileUploadButton onFileLoad={handleFileLoad} isDisabled={useDefault} />
           </Grid>
           <Grid item>
-            {/*<Button variant="contained"
+            <Button variant="contained"
               sx={{ backgroundColor: "#3c8eaa", color: "white" }}
               onClick={() => handleUseDefault(defualtData)}>
               {useDefault ? "Upload CSV" : "Use Default"}
-            </Button>*/}
+            </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
