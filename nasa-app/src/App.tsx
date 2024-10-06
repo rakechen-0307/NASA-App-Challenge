@@ -340,10 +340,11 @@ function App() {
           {uploadMenu?
             <div>
               <p className='title-text'>Select Seismic Data</p>
-              <p className='description-text'>Choose a default event or upload your own CSV file.</p>
+              <p className='description-text'>Upload your own CSV file or select and load a default event data.</p>
               <Grid item>
                 <FileUploadButton onFileLoad={handleFileLoad} />
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
+                <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Selected Event</InputLabel>
                   <Select
                     id="demo-default-event"
                     value={defaultEvent}

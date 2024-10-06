@@ -48,7 +48,7 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad }) => {
         onClick={handleButtonClick}
         // sx = {{mb: 2}}
       >
-        Upload CSV
+        Upload Your CSV
       </Button>
     </>
   );

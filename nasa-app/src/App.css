@@ -23,6 +23,7 @@ html, body {
 
 .description-text {
   color: white;
+  font-family: "Prompt", sans-serif;
 }
 .title-text {
   color: white;
