@@ -1,12 +1,23 @@
 import './App.css';
 import React, { useEffect, useState, useRef } from 'react';
 import FileInput from './components/FileInput';
+import FileUploadButton from './components/MUI-Fileinput';
 import { Data } from './types/Data';
 import SeismicPlot from './components/SeismicPlot';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
+import { ThemeProvider } from '@mui/material';
+
+// theme import
+import theme from './theme';
+import { Box, Typography, Grid, Button, IconButton, Stack } from '@mui/material';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InfoIcon from '@mui/icons-material/Info';
+import { MaterialUISwitch } from './components/switches';
+
 import { Planet } from './types/Three';
+import { alignProperty } from '@mui/material/styles/cssUtils';
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -162,21 +173,74 @@ function App() {
   };
 
   return (
-    <div>
+    <ThemeProvider theme = {theme}>
       <ThreeSimulator />
-      <h1>Seismic Waveform Detection</h1>
-      <div>
-        <label>
-          <input type="checkbox" onChange={handlePlanetSwitch} />
-        </label>
-      </div>
-      <div className='button-flex'>
-        <button onClick={() => setStep(1)}>Step 1: Bandpass Filter</button>
-        <button onClick={() => setStep(2)}>Step 2: Gaussian Smoothing</button>
-        <button onClick={() => setStep(3)}>Step 3: Find Peaks & Slopes</button>
-        <button onClick={() => setStep(4)}>Step 4: Mark Seismic Positions</button>
-      </div>
-      <FileInput onFileLoad={handleFileLoad} />
+      <Box sx={{ backgroundColor: "transparent", minHeight: "100vh", padding: "50px" }}>
+      <Grid container justifyContent="left" spacing={1} sx={{mb:4}}>
+          <Grid item>
+            <Typography variant="h3" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "bold", fontWeight: 700, color: "white", mr:4 }}>
+              Seismic Waveform Detection
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="h4" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "italic", fontWeight: 300, color: "white" }}>
+              by Reaching Stars
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Stack direction="row" spacing={1}>
+              <IconButton aria-label="delete" sx={{color:"white"}}>
+                <GitHubIcon sx={{ fontSize: 40 }}/>
+              </IconButton>
+              <IconButton aria-label="delete" sx={{color:"white"}}>
+                <InfoIcon sx={{ fontSize: 40 }}/>
+              </IconButton>
+            </Stack>
+          </Grid>
+        </Grid>
+        <Typography variant="h6" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "normal", fontWeight: 250, color: "white", mb:1 }}>
+          This is a demo of our seismic waveform detection algorithm. Upload a CSV file and choose the step you want to observe !
+        </Typography>
+        
+        {/* Steps */}
+        <Grid container justifyContent="left" spacing={1} sx={{mb:4}}>
+        <Grid item>
+            <FileUploadButton onFileLoad={handleFileLoad} />
+        </Grid>
+        <Grid item>
+          <Button variant="contained" 
+                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
+                  onClick={() => setStep(1)}>
+            Step 1: Bandpass Filter
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="contained" 
+                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
+                  onClick={() => setStep(2)}>
+            Step 2: Gaussian Smoothing
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="contained" 
+                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
+                  onClick={() => setStep(3)}>
+            Step 3: Find Peaks & Slopes
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant="contained" 
+                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
+                  onClick={() => setStep(4)}>
+            Step 3: Mark Seismic Positions
+          </Button>
+        </Grid>
+        <Grid item>
+          <MaterialUISwitch defaultChecked/>
+        </Grid>
+      </Grid>
+
+      {/*plotting*/}
       {processedData.data.length > 0 && <SeismicPlot
         step={step}
         data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
@@ -187,13 +251,16 @@ function App() {
         level={processedData.level}
         startLocations={processedData.startLocations}
         endLocations={processedData.endLocations}
-      />
-      }
+      />}
+      
       <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
       <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>
       <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>
-    </div>
-    // <button onClick={() => threeController.triggerRandomQuake(0.1, 100, 5, 0.02)}>Trigger Quake</button>
+      </Box>
+    </ThemeProvider>
+    // <h1>CSV Import in React.js</h1>
+    // <FileInput onFileLoad={handleFileLoad} />
+    // {data.length > 0 && <SeismicPlot data={data} std={2} widthFactor={0.3} smoothingStd={600} />}
   );
 }
 
