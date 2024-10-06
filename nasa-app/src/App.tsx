@@ -63,8 +63,8 @@ function App() {
 
   const titles = [
     "Step 1. Original Data Through Bandpass Filter",
-    "Step 2. Envelope Extraction and Smoothing of Data",
-    "Step 3. Peaks from Envelope Selected, with Slopes Calculated for Thresholding",
+    "Step 2. Profile Extraction by Smoothing the Data",
+    "Step 3. Detect Peaks of the Profile, with Slopes Calculated for Thresholding",
     "Step 4. Peaks Selected as Seismic Event and Onset Time Estimated"
   ];
 
