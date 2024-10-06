@@ -4,6 +4,7 @@ import { lerp2D, lerp1D } from '../helpers/lerp';
 
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
+import { toDataPoints } from '../helpers/toDataPoints';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const slidingSpeed = 100; // samples per frame
@@ -50,6 +51,7 @@ interface SeismicPlotState {
   innerStep: number;
   // For animation
   absData: Data[];
+  normalizeData: Data[];
   currentData: Data[];
   currentLevel: number;
   currentMarkerSize: number;
@@ -83,6 +85,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       innerStep: 0,
       // animation
       absData: [],
+      normalizeData: [],
       currentData: [],
       currentLevel: 0,
       currentMarkerSize: 0,
@@ -90,6 +93,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       slopeVisible: false,
       currentPeakLocation: [],
       currentPeakIndex: 0,
+      // For axis
       maximum: props.data.reduce((max, p) => p.y > max ? p.y : max, props.data[0].y),
       minimum: props.data.reduce((min, p) => p.y < min ? p.y : min, props.data[0].y),
     };
@@ -122,6 +126,13 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       for (let i = 0; i < this.props.slopes.length; i++) {
         initialSlopes.push([this.props.slopes[i][1], this.props.slopes[i][1], this.props.slopes[i][1]]);
       }
+      // Calculate the average of nextData
+      let velocity = this.props.nextData.map((d) => d.y);
+      const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
+      let normalizedVelocity = velocity.map((val) => val - average);
+      normalizedVelocity = normalizedVelocity.map((val) => (val >= 0 ? val : 0));
+      const normalizedPoints = toDataPoints(this.props.nextData.map((d) => d.x), normalizedVelocity);
+
       this.setState({
         step: this.props.step,
         data: [...this.props.data],
@@ -141,6 +152,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         slopeVisible: false,
         currentData: this.props.data.map((d) => (d)),
         absData: this.props.data.map((d) => ({ x: d.x, y: Math.abs(d.y) })),
+        normalizeData: normalizedPoints,
         currentPeakLocation: Array(this.props.startLocations.length).fill(0),
         currentPeakIndex: 0,
       });
@@ -152,7 +164,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx, currentData, currentLevel, currentMarkerSize, currentPeakIndex, currentPeakLocation, currentSlopes, level, slopes, startLocations, absData } = this.state;
+    const { step, data, nextData, kernel, idx, currentData, currentLevel, currentMarkerSize, currentPeakIndex, currentPeakLocation, currentSlopes, level, slopes, startLocations, absData, normalizeData } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
@@ -190,14 +202,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         }
         else
         {
-          this.setState({ innerStep: 1 });
+          this.setState({ innerStep: 1, idx: 0 });
         }
-        // let velocity = data.map((d) => d.y);
-        // velocity = velocity.map(Math.abs);
-        // this.setState({
-        //   data: velocity.map((y, i) => ({ x: data[i].x, y })),
-        //   innerStep: 1
-        // });
       } else if (innerStep === 1) {
         if (kernel.length > 0) {
           let currentX = 0;
@@ -216,18 +222,30 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
             this.setState({ idx: idx + stride, currentData: newData });
           }
           else {
-            this.setState({ innerStep: 2 });
+            this.setState({ innerStep: 2, idx: 0 });
           }
         }
       } else if (innerStep === 2) {
-        let velocity = currentData.map((d) => d.y);
-        const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
-        let centeredVelocity = velocity.map((val) => val - average);
-        centeredVelocity = centeredVelocity.map((val) => (val >= 0 ? val : 0));
-        this.setState({
-          currentData: centeredVelocity.map((y, i) => ({ x: currentData[i].x, y })),
-          innerStep: 3
-        });
+        if (idx < step2Frames[1]) {
+          let newData = data.map(d => ({ ...d }));
+          for (let i = 0; i < currentData.length; i++) {
+            newData[i].y = lerp1D(nextData[i].y, normalizeData[i].y, idx, step2Frames[1]);
+          }
+          this.setState({ idx: idx + 1, currentData: newData });
+        }
+        else
+        {
+          this.setState({ innerStep: 3 });
+        }
+
+        // let velocity = currentData.map((d) => d.y);
+        // const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
+        // let centeredVelocity = velocity.map((val) => val - average);
+        // centeredVelocity = centeredVelocity.map((val) => (val >= 0 ? val : 0));
+        // this.setState({
+        //   currentData: centeredVelocity.map((y, i) => ({ x: currentData[i].x, y })),
+        //   innerStep: 3
+        // });
       }
       else {
         return;
