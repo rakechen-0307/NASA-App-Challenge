@@ -40,7 +40,7 @@ function App() {
     startLocations: [],
     endLocations: []
   });
-  const [defaultEvent, setDefaultEvent] = useState<string>('');
+  const [defaultEvent, setDefaultEvent] = useState<string>('lunar 1');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
   const [dataUrl, setDataUrl] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -103,6 +103,7 @@ function App() {
         0.437803402, 0.151489773, -0.224228809, -0.170557003, 0.002012645,
         -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
+      setDefaultEvent("lunar 1");
     }
     else if (planet === "mars") {
       ts = 0.05;
@@ -116,6 +117,7 @@ function App() {
         -0.110448191, 0.04424677, 0.249863191, 0.345144188, 0.249863191, 0.04424677, -0.110448191,
         -0.124987344, -0.049134331, 0.005371116, -0.012730875, -0.059643647, -0.069394178,
         -0.034209679, -0.001507097, -0.006810152, -0.032765272, -0.039009518, -0.015753723);
+      setDefaultEvent("mars 1");
     }
   }, [planet]);
 
@@ -333,27 +335,25 @@ function App() {
               <p className='title-text'>Select Seismic Data</p>
               <p className='description-text'>Choose a default event or upload your own CSV file.</p>
               <Grid item>
-                <FileUploadButton onFileLoad={handleFileLoad} isDisabled={isLoaded} setDisabled={setIsLoaded} />
-                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white" }} size="small">
+                <FileUploadButton onFileLoad={handleFileLoad} />
+                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
                   <Select
-                    labelId="default-event"
                     id="demo-default-event"
                     value={defaultEvent}
                     onChange={handleDefaultValueChange}
-                    label="Age"
                     sx={{
                       color: "white",
                       '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white', // Change border color to white
+                        borderColor: "#666d75", // Change border color to white
                       },
                       '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white', // Change border color on hover
+                        borderColor: '#666d75', // Change border color on hover
                       },
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white', // Change border color when focused
+                        borderColor: '#666d75', // Change border color when focused
                       },
                       '& .MuiSelect-icon': {
-                        color: 'white', // Change the dropdown icon color to white
+                        color: '#666d75', // Change the dropdown icon color to white
                       }
                     }}
                   >
