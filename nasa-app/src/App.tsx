@@ -211,48 +211,50 @@ function App() {
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => setStep(1)}>
-              Step 1: Bandpass Filter
+              Bandpass Filter
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => setStep(2)}>
-              Step 2: Gaussian Smoothing
+              Gaussian Smoothing
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => setStep(3)}>
-              Step 3: Find Peaks & Slopes
+              Find Peaks & Slopes
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => setStep(4)}>
-              Step 3: Mark Seismic Positions
+              Mark Seismic Positions
             </Button>
           </Grid>
         </Grid>
 
         {/*plotting*/}
-        {processedData.data.length > 0 && <SeismicPlot
-          step={step}
-          data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
-          nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
-          kernel={step === 1 ? bandPassKernel(ts, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, ts, processedData.filteredData) : []}
-          peaks={processedData.peaksData}
-          slopes={processedData.slopesData}
-          level={processedData.level}
-          startLocations={processedData.startLocations}
-          endLocations={processedData.endLocations}
-        />}
+        <div className='data-div'>
+          {processedData.data.length > 0 && <SeismicPlot
+            step={step}
+            data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
+            nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
+            kernel={step === 1 ? bandPassKernel(ts, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, ts, processedData.filteredData) : []}
+            peaks={processedData.peaksData}
+            slopes={processedData.slopesData}
+            level={processedData.level}
+            startLocations={processedData.startLocations}
+            endLocations={processedData.endLocations}
+          />}
+        </div>
 
-        {/* <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
-        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>
-        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button> */}
+        {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}
+        {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>*/}
+        {/*<button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>*/}
       </Box>
 
       {/* Footer */}
