@@ -335,7 +335,7 @@ function App() {
               <p className='title-text'>Select Seismic Data</p>
               <p className='description-text'>Choose a default event or upload your own CSV file.</p>
               <Grid item>
-                <FileUploadButton onFileLoad={handleFileLoad} />
+                <FileUploadButton onFileLoad={handleFileLoad} isDisabled={isLoaded} setDisabled={setIsLoaded} />
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
                   <Select
                     id="demo-default-event"
