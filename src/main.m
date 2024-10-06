@@ -3,40 +3,14 @@ clear; clc; close all
 %% Parameter Settings
 
 % Choose which celestial body: 'lunar' or 'mars'
-target_body = 'lunar';
-
 % Give filepath (absolute or relative are both fine, must be .csv)
-filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\lunar\training\data\S12_GradeA\xa.s12.00.mhz.1971-04-13HR02_evid00029.csv";
+filepath = "../demo_mars.csv";     % You can also use demo_mars.csv or your own file
+
 % Save figure? (true: save)
 save_figure = false;
 
 % If save figure, assign its location. DO NOT add file extension (ex. .png)
-figure_save_location = "D:\NASA_Hackathon\NASA-App-Challenge\images\full_result";
-
-%% Initialize hyperparameters
-
-if strcmp(target_body, 'lunar')
-    smoothing_std = 6e2;            % std of the Gaussian smoothing
-    peak_std_num = 2;               % number of std to be recognized as a peak
-    slope_ratio_threshold = 1.5;    %
-    detect_level = 0.3;
-    delay_compensate = 549;
-    load ./filter/lunar_bpf.mat
-    compensate_ratio = 1.1427;
-else
-    smoothing_std = 3e2;            % std of the Gaussian smoothing
-    peak_std_num = 1.3;             % number of std to be recognized as a peak (recommend 2~3)
-    slope_ratio_threshold = 1.5;    %
-    detect_level = 0.3;
-    delay_compensate = 0;
-    load ./filter/mars_bpf.mat
-end
-
-% Open a figure
-result_fig = figure;
-sgtitle("Seismic Detection Process");
-plot_count = 5;
-line_width = 1.2;
+figure_save_location = "../demo_image";
 
 %% Load data
 fprintf("Reading data...\n")
@@ -46,6 +20,37 @@ time = data_table{:, 2};
 velocity = data_table{:, 3};
 velocity_original = velocity; % save a copy
 ts = time(2) - time(1); % sampling time
+
+if ts == 0.05
+    target_body = "mars";
+else
+    target_body = "lunar";
+end
+
+%% Initialize hyperparameters
+
+if strcmp(target_body, 'lunar')
+    smoothing_std = 6e2;            % std of the Gaussian smoothing
+    peak_std_num = 2;               % number of std to be recognized as a peak
+    slope_ratio_threshold = 1.5;    %
+    detect_level = 0.3;
+    delay_compensate = 549;
+    load ../filter/lunar_bpf.mat
+    compensate_ratio = 1.1427;
+else
+    smoothing_std = 3e2;            % std of the Gaussian smoothing
+    peak_std_num = 1.3;             % number of std to be recognized as a peak (recommend 2~3)
+    slope_ratio_threshold = 1.5;    %
+    detect_level = 0.3;
+    delay_compensate = 0;
+    load ../filter/mars_bpf.mat
+end
+
+% Open a figure
+result_fig = figure;
+sgtitle("Seismic Detection Process");
+plot_count = 5;
+line_width = 1.2;
 
 % plot original signal
 subplot(plot_count, 1, 1);
@@ -123,7 +128,6 @@ end
 hold off;
 
 %% Step 4: Select the Peaks
-figure; hold on
 peaks = [];
 end_events = [];
 lower_slopes = [];
@@ -136,7 +140,7 @@ for i = 1:size(peak_indices, 1)
         upper_slopes = [upper_slopes right_slopes(i)];
     end
 end
-% subplot(plot_count, 1, 5); hold on;
+subplot(plot_count, 1, 5); hold on;
 ylim([min(velocity_original), max(velocity_original)]);
 
 if ~isempty(peaks)
