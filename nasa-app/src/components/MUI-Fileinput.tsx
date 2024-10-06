@@ -7,15 +7,18 @@ interface FileUploadButtonProps {
   onFileLoad: (data: any[]) => void;
   isDisabled: boolean;
   setDisabled: any;
+  processStatus: string;
+  setProcessStatus: any;
 }
 
-const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad, isDisabled, setDisabled }) => {
+const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad, isDisabled, setDisabled, processStatus, setProcessStatus }) => {
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (file) {
       setDisabled(true);
+      setProcessStatus("Loading Data...");
       Papa.parse(file, {
         complete: (result) => {
           // Assuming you want to process data except the header

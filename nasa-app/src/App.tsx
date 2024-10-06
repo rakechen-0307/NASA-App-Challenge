@@ -21,7 +21,6 @@ import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
 import { url } from 'inspector';
-// import Music from './components/Music';
 
 
 function App() {
@@ -42,8 +41,10 @@ function App() {
   });
   const [defaultEvent, setDefaultEvent] = useState<string>('lunar 1');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
-  const [dataUrl, setDataUrl] = useState<string>('');
+  const [dataUrl, setDataUrl] = useState<string>("https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0");
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [processStatus, setProcessStatus] = useState<string>("");
+  const [isLocked, setIsLocked] = useState<boolean>(true);
 
   let ts = 0.1509;
   let std = 2;
@@ -220,10 +221,14 @@ function App() {
 
     workerRef.current?.postMessage({ loadedData, params });
     setIsLoaded(false);
+    setIsLocked(false);
+    setProcessStatus("");
   };
 
   const handleUseDefault = (dataURL: string) => {
     setIsLoaded(true);
+    setIsLocked(true);
+    setProcessStatus("Loading Data...");
     fetch(dataURL)
       .then(response => response.text())  // Convert response to text
       .then(jsonData => {
@@ -286,28 +291,28 @@ function App() {
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained"
+            <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(1); setUploadMenu(false);}}>
               Step 1: Filtering
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained"
+            <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(2); setUploadMenu(false);}}>
               Step 2: Smoothing
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained"
+            <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(3); setUploadMenu(false);}}>
               Step 3: Detect Peaks
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained"
+            <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
               onClick={() => {setStep(4); setUploadMenu(false);}}>
               Step 4: Detection Result
@@ -335,7 +340,13 @@ function App() {
               <p className='title-text'>Select Seismic Data</p>
               <p className='description-text'>Upload your own CSV file or select and load a default event data.</p>
               <Grid item>
-                <FileUploadButton onFileLoad={handleFileLoad} isDisabled={isLoaded} setDisabled={setIsLoaded} />
+                <FileUploadButton 
+                  onFileLoad={handleFileLoad} 
+                  isDisabled={isLoaded} 
+                  setDisabled={setIsLoaded} 
+                  processStatus={processStatus}
+                  setProcessStatus={setProcessStatus}
+                />
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
                 <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Selected Event</InputLabel>
                   <Select
@@ -371,6 +382,7 @@ function App() {
                   onClick={() => handleUseDefault(dataUrl)} disabled={isLoaded}>
                   Load Default Event
                 </Button>
+                <h3 className='loading-info'>{ processStatus }</h3>
               </Grid>
             </div>
             : 

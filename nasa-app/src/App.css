@@ -15,7 +15,7 @@ html, body {
   width: 52vw;
   height: 20vh;
   left: 3vw;
-  top: 65vh;
+  top: 62vh;
   padding: 10px;
   border: 2px solid rgba(210, 210, 210, 0.601);
   border-radius: 5px;
@@ -28,6 +28,13 @@ html, body {
 .title-text {
   color: white;
   font-size: 16px;
+  font-style: bold;
+  font-family: "Prompt", sans-serif;
+}
+
+.loading-info {
+  color: rgb(107, 223, 255);
+  font-size: 18px;
   font-style: bold;
   font-family: "Prompt", sans-serif;
 }
