@@ -4,6 +4,7 @@ import { lerp2D, lerp1D } from '../helpers/lerp';
 
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
+import { toDataPoints } from '../helpers/toDataPoints';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const slidingSpeed = 100; // samples per frame
@@ -48,8 +49,10 @@ interface SeismicPlotState {
   endLocations: number[];
   idx: number;
   innerStep: number;
+  kernelLocation: number;
   // For animation
   absData: Data[];
+  normalizeData: Data[];
   currentData: Data[];
   currentLevel: number;
   currentMarkerSize: number;
@@ -81,8 +84,10 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       endLocations: props.endLocations,
       idx: 0,
       innerStep: 0,
+      kernelLocation: 0,
       // animation
       absData: [],
+      normalizeData: [],
       currentData: [],
       currentLevel: 0,
       currentMarkerSize: 0,
@@ -90,6 +95,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       slopeVisible: false,
       currentPeakLocation: [],
       currentPeakIndex: 0,
+      // For axis
       maximum: props.data.reduce((max, p) => p.y > max ? p.y : max, props.data[0].y),
       minimum: props.data.reduce((min, p) => p.y < min ? p.y : min, props.data[0].y),
     };
@@ -122,6 +128,13 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       for (let i = 0; i < this.props.slopes.length; i++) {
         initialSlopes.push([this.props.slopes[i][1], this.props.slopes[i][1], this.props.slopes[i][1]]);
       }
+      // Calculate the average of nextData
+      let velocity = this.props.nextData.map((d) => d.y);
+      const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
+      let normalizedVelocity = velocity.map((val) => val - average);
+      normalizedVelocity = normalizedVelocity.map((val) => (val >= 0 ? val : 0));
+      const normalizedPoints = toDataPoints(this.props.nextData.map((d) => d.x), normalizedVelocity);
+
       this.setState({
         step: this.props.step,
         data: [...this.props.data],
@@ -134,6 +147,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         endLocations: this.props.endLocations,
         idx: 0, // Reset the index when new data comes in
         innerStep: 0,
+        kernelLocation: 0,
         // Animation
         currentLevel: 0,
         currentMarkerSize: 0,
@@ -141,6 +155,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         slopeVisible: false,
         currentData: this.props.data.map((d) => (d)),
         absData: this.props.data.map((d) => ({ x: d.x, y: Math.abs(d.y) })),
+        normalizeData: normalizedPoints,
         currentPeakLocation: Array(this.props.startLocations.length).fill(0),
         currentPeakIndex: 0,
       });
@@ -152,7 +167,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx, currentData, currentLevel, currentMarkerSize, currentPeakIndex, currentPeakLocation, currentSlopes, level, slopes, startLocations, absData } = this.state;
+    const { step, data, nextData, kernel, idx, currentData, currentLevel, currentMarkerSize, currentPeakIndex, currentPeakLocation, currentSlopes, level, slopes, startLocations, absData, normalizeData, kernelLocation } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
@@ -164,17 +179,11 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
             data[idx + i] = nextData[idx + i];
           }
           currentX = data[idx + stride - 1].x;
-          this.setState({ idx: idx + stride });
+          let diff = currentX - kernelLocation;
+          this.setState({ kernelLocation: kernelLocation + diff, idx: idx + stride });
         }
-
-        if (idx < data.length) {
-          let diff = currentX - kernel[kernel.length - 1].x;
-          for (let i = 0; i < kernel.length; i++) {
-            kernel[i].x += diff;
-          }
-        }
+        this.chart.render();
       }
-      this.chart.render();
     }
     // Gaussian smoothing logic
     else if (step === 2) {
@@ -190,14 +199,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         }
         else
         {
-          this.setState({ innerStep: 1 });
+          this.setState({ innerStep: 1, idx: 0 });
         }
-        // let velocity = data.map((d) => d.y);
-        // velocity = velocity.map(Math.abs);
-        // this.setState({
-        //   data: velocity.map((y, i) => ({ x: data[i].x, y })),
-        //   innerStep: 1
-        // });
       } else if (innerStep === 1) {
         if (kernel.length > 0) {
           let currentX = 0;
@@ -209,25 +212,25 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
             }
             currentX = newData[idx + stride - 1].x;
         
-            let diff = currentX - kernel[kernel.length - 1].x;
-            for (let i = 0; i < kernel.length; i++) {
-              kernel[i].x += diff;
-            }
-            this.setState({ idx: idx + stride, currentData: newData });
+            let diff = currentX - kernelLocation;
+            this.setState({ kernelLocation: kernelLocation + diff, idx: idx + stride, currentData: newData });
           }
           else {
-            this.setState({ innerStep: 2 });
+            this.setState({ innerStep: 2, idx: 0 });
           }
         }
       } else if (innerStep === 2) {
-        let velocity = currentData.map((d) => d.y);
-        const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
-        let centeredVelocity = velocity.map((val) => val - average);
-        centeredVelocity = centeredVelocity.map((val) => (val >= 0 ? val : 0));
-        this.setState({
-          currentData: centeredVelocity.map((y, i) => ({ x: currentData[i].x, y })),
-          innerStep: 3
-        });
+        if (idx < step2Frames[1]) {
+          let newData = data.map(d => ({ ...d }));
+          for (let i = 0; i < currentData.length; i++) {
+            newData[i].y = lerp1D(nextData[i].y, normalizeData[i].y, idx, step2Frames[1]);
+          }
+          this.setState({ idx: idx + 1, currentData: newData });
+        }
+        else
+        {
+          this.setState({ innerStep: 3 });
+        }
       }
       else {
         return;
@@ -275,7 +278,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
   render() {
     const { step, data, kernel, peaks, slopeVisible, currentData, currentLevel, 
-            currentSlopes, currentMarkerSize, currentPeakLocation, maximum, minimum } = this.state;
+            currentSlopes, currentMarkerSize, currentPeakLocation, maximum, minimum, kernelLocation } = this.state;
 
     // Render based on step value
     if (step === 0) {
@@ -316,6 +319,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
+          stripLines: [{ value: kernelLocation, thickness: 5, color: '#fcc419' }]
         },
         axisY: { 
           title: 'Amplitude (m/s)',
@@ -325,7 +329,6 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         },
         data: [
           { type: 'line', dataPoints: data, color: "#34dbeb" },
-          { type: 'line', dataPoints: kernel, color: "#f0a314" }
         ]
       };
 
@@ -345,6 +348,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
+          stripLines: [{ value: kernelLocation, thickness: 5, color: '#fcc419' }]
         },
         axisY: { 
           title: 'Amplitude (m/s)',
@@ -354,7 +358,6 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         },
         data: [
           { type: 'line', dataPoints: currentData, color: "#34dbeb" },
-          { type: 'line', dataPoints: kernel, color: "#f0a314" }
         ]
       };
 
@@ -414,11 +417,8 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         ]
       };
       currentPeakLocation.forEach((location: number) => {
-        options.axisX.stripLines.push({ thickness: 2, value: location , color: '#f03e3e' });
+        options.axisX.stripLines.push({ thickness: 5, value: location , color: '#f03e3e' });
       });
-      // endLocations.forEach((location: number) => {
-      //   options.axisX.stripLines.push({ thickness: 2, value: location , color: '#91e817' });
-      // });
 
       return (
         <div>
