@@ -5,7 +5,7 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare';
 
-import { LENSFLARE0_URL, LENSFLARE1_URL, PLANET_URLS, WORLD_URL } from "../../constants";
+import { LENSFLARE0_URL, LENSFLARE1_URL, PLANET_URLS, STATIONS, WORLD_URL } from "../../constants";
 import { PolarPosition, Planet } from "../../types/Three";
 
 // postprocessing for three.js
@@ -21,7 +21,7 @@ import { PolarPosition, Planet } from "../../types/Three";
 import Controls from "./Controls";
 // controls to control the scene
 
-import Settings from "./Settings";
+// import Settings from "./Settings";
 import { PolarToCartesian } from "./utils";
 
 
@@ -44,7 +44,8 @@ class ThreeController {
   width: number;
 
   planet: THREE.Mesh;
-  // world: THREE.Mesh;
+  PLANET_RADIUS: number = 2;
+  STATION_RADIUS: number = 0.03;
 
   light: THREE.DirectionalLight;
   // flareLight: THREE.PointLight;
@@ -55,6 +56,13 @@ class ThreeController {
 
   isPlaying: boolean;
   initialized: boolean;
+
+  stations: THREE.Mesh[] = [];
+
+  currentPlanetType: Planet;
+
+  rotationMatrix: THREE.Matrix4;
+  rotationAxis: THREE.Vector3;
 
   constructor() {
     // Configuration of the scene
@@ -80,7 +88,8 @@ class ThreeController {
       }
     );
 
-    this.planet = this.generatePlanet(Planet.MOON);
+    this.currentPlanetType = Planet.MOON; // Initialize with default planet type
+    this.planet = this.generatePlanet(this.currentPlanetType);
 
     // Initialize controls after the renderer is set up
     this.controls = this.generateControl();
@@ -91,6 +100,11 @@ class ThreeController {
 
     // record the return id of requestAnimationFrame
     this.initialized = false;
+
+    this.rotationAxis = new THREE.Vector3(1, 1, -0.3).normalize(); // Default rotation around the y-axis
+    this.rotationMatrix = new THREE.Matrix4();
+    this.rotationMatrix.makeRotationAxis(this.rotationAxis, -0.01);
+    this.offsetPlanetAxis(this.planet);
   }
 
   triggerQuake(amplitude: number, profile: number[], upsample: number, downsample: number) {
@@ -101,7 +115,8 @@ class ThreeController {
     this.controls.quakeControls.triggerRandom(amplitude, length, upsample, decay);
   }
 
-  triggerUpdatePlanetMaterial(transitionCycle0: number, transitionCycle1: number, planet: Planet) {
+  triggerUpdatePlanetType(transitionCycle0: number, transitionCycle1: number, planet: Planet) {
+    this.currentPlanetType = planet;
     this.controls.switchPlanet.trigger(transitionCycle0, transitionCycle1, planet);
   }
 
@@ -261,20 +276,47 @@ class ThreeController {
   }
 
   updatePlanetMaterial(planetType: Planet) {
-    // console.log("updatePlanetMaterial", planetType);
+    // Update the current planet type
+    this.currentPlanetType = planetType;
     const newPlanet = this.generatePlanet(planetType);
     this.scene.add(newPlanet);
     this.scene.remove(this.planet);
+
     this.planet = newPlanet;
+    this.offsetPlanetAxis(this.planet);
+
     this.controls.updatePlanet(this.planet);
+
+    // Update station positions
+    this.updateStationPositions();
+  }
+
+  updateStationPositions() {
+    this.stations.forEach((station, index) => {
+      const { longitude, latitude } = STATIONS[this.currentPlanetType][index].position;
+      const position = this.calculateStationPosition(this.PLANET_RADIUS, this.STATION_RADIUS, longitude, latitude);
+      station.position.set(position.x, position.y, position.z);
+    });
+  }
+  
+  offsetPlanetAxis(planet: THREE.Mesh) {
+    const initialPosition = new THREE.Vector3(0, 1, 0);
+    const offsetAxis = new THREE.Vector3();
+    offsetAxis.crossVectors(new THREE.Vector3(0, 1, 0), this.rotationAxis);
+    offsetAxis.normalize();
+
+    const angle = Math.acos(initialPosition.dot(this.rotationAxis) / (initialPosition.length() * this.rotationAxis.length()));
+
+    const rotationMatrix = new THREE.Matrix4();
+    rotationMatrix.makeRotationAxis(offsetAxis, angle);
+    planet.applyMatrix4(rotationMatrix);
   }
 
   generatePlanet(planetType: Planet) {
-    const geometry = new THREE.SphereGeometry(2, 500, 500);
+    const geometry = new THREE.SphereGeometry(this.PLANET_RADIUS, 500, 500);
 
     const textureLoader = new THREE.TextureLoader();
     let texture = textureLoader.load(PLANET_URLS.moon.texture);
-    // const displacementMap = textureLoader.load(PLANET_URLS.moon.displacement);
 
     if (planetType === Planet.MOON) {
       texture = textureLoader.load(PLANET_URLS.moon.texture);
@@ -282,23 +324,59 @@ class ThreeController {
       texture = textureLoader.load(PLANET_URLS.mars.texture);
     }
 
-    const material = new THREE.MeshPhongMaterial(
-      {
-        color: 0xffffff,
-        map: texture,
-        // displacementMap: displacementMap,
-        // displacementScale: 0.16,
-        // bumpMap: displacementMap,
-        // bumpScale: 0.20,
-        reflectivity: 0,
-        shininess: 0
-      }
-    );
+    const material = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      map: texture,
+      reflectivity: 0,
+      shininess: 0
+    });
 
     const planet = new THREE.Mesh(geometry, material);
+
     this.scene.add(planet);
+    // this.addStations(planetType, planet);
 
     return planet;
+  }
+
+  addStations(planetType: Planet, planet: THREE.Mesh) {
+    const stations = STATIONS[planetType];
+    this.stations.forEach(station => planet.remove(station));
+    this.stations = [];
+
+    stations.forEach(station => {
+      const { longitude, latitude } = station.position;
+      const stationMesh = this.createStationMesh();
+      const position = this.calculateStationPosition(this.PLANET_RADIUS, this.STATION_RADIUS, longitude, latitude);
+      stationMesh.position.set(position.x, position.y, position.z);
+      planet.add(stationMesh); // Add station as a child of the planet
+      this.stations.push(stationMesh);
+    });
+  }
+
+  createStationMesh() {
+    const geometry = new THREE.SphereGeometry(this.STATION_RADIUS, 32, 32);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x5f718b,
+      shininess: 100,
+      emissive: 0x5f718b,
+      emissiveIntensity: 0.2
+    });
+    return new THREE.Mesh(geometry, material);
+  }
+
+  calculateStationPosition(planetRadius: number, stationRadius: number, longitude: number, latitude: number) {
+    const floatDistance = 0.01; // Distance above the planet's surface
+    const radius = planetRadius + stationRadius + floatDistance; // New radius for floating effect
+
+    const phi = (90 - latitude) * (Math.PI / 180);
+    const theta = (longitude + 180) * (Math.PI / 180);
+
+    const x = -radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.cos(phi);
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+
+    return new THREE.Vector3(x, y, z);
   }
 
   generateWorld() {
@@ -309,7 +387,7 @@ class ThreeController {
     const worldMaterial = new THREE.MeshBasicMaterial(
       {
         color: 0x000000,
-        // map: worldTexture,
+        map: worldTexture,
         side: THREE.BackSide
       }
     );
@@ -358,8 +436,8 @@ class ThreeController {
   }
 
   update() {
-    this.planet.rotation.y += 0.002;
-    this.planet.rotation.x += 0.001;
+    // Apply the rotation matrix to the planet
+    this.planet.applyMatrix4(this.rotationMatrix);
     this.controls.update();
   }
 

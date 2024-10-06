@@ -46,6 +46,7 @@ class SwitchPlanet {
     stageCycle1: number;
     targetPlanet: Planet;
 
+    stationInitialEmission: number;
     initialPosition: THREE.Vector3;
     rotationAxis: THREE.Vector3;
     targetAngle: number;
@@ -62,6 +63,13 @@ class SwitchPlanet {
         this.counter = 0;
         this.deltaAngle = 0;
         this.targetPlanet = Planet.MOON;
+
+        this.stationInitialEmission = 0;
+        this.controller.planet.children.forEach(child => {
+            if (child instanceof THREE.Mesh) {
+                this.stationInitialEmission = child.material.emissiveIntensity; // should be the same for all stations
+            }
+        });
 
         const axisAndAngle = calculateAxisAndAngle(this.controller.lightPosition);
         this.initialPosition = PolarToCartesian(this.controller.lightPosition);
@@ -106,24 +114,45 @@ class SwitchPlanet {
         this.controller.updateLightPosition(CartesianToPolar(this.currentPosition));
 
         this.counter += 1;
-        if (this.stage === 0 && this.counter === this.stageCycle0) {
-            this.stage = 1;
-            this.counter = 0;
-            this.deltaAngle = (Math.PI * 2 - this.targetAngle) / this.stageCycle1;
-            this.rotationMatrix.makeRotationAxis(this.rotationAxis, this.deltaAngle);
+        if (this.stage === 0) {
+            this.controller.planet.children.forEach(child => {
+                if (child instanceof THREE.Mesh) {
+                    child.material.emissiveIntensity = this.stationInitialEmission * (1 - this.counter / this.stageCycle0); // Dim the emission of station points
+                }
+            });
 
-            this.controller.updatePlanetMaterial(this.targetPlanet);
+            if (this.counter === this.stageCycle0) {
+                this.stage = 1;
+                this.counter = 0;
+                this.deltaAngle = (Math.PI * 2 - this.targetAngle) / this.stageCycle1;
+                this.rotationMatrix.makeRotationAxis(this.rotationAxis, this.deltaAngle);
+
+                this.controller.updatePlanetMaterial(this.targetPlanet);
+                this.controller.planet.children.forEach(child => {
+                    if (child instanceof THREE.Mesh) {
+                        child.material.emissiveIntensity = this.stationInitialEmission; // Dim the emission of station points
+                    }
+                });
+            }
         }
-        if (this.stage === 1 && this.counter === this.stageCycle1) {
-            this.stage = 0;
-            this.counter = 0;
-            this.running = false;
+        if (this.stage === 1) {
+            this.controller.planet.children.forEach(child => {
+                if (child instanceof THREE.Mesh) {
+                    child.material.emissiveIntensity = this.stationInitialEmission * (this.counter / this.stageCycle0); // Dim the emission of station points
+                }
+            });
 
-            this.controller.updateLightPosition(CartesianToPolar(this.initialPosition));
+            if (this.counter === this.stageCycle1) {
+                this.stage = 0;
+                this.counter = 0;
+                this.running = false;
 
-            const next = this.pendings.pop();
-            if (next) {
-                this.trigger(next.cycle0, next.cycle1, next.planet);
+                this.controller.updateLightPosition(CartesianToPolar(this.initialPosition));
+
+                const next = this.pendings.pop();
+                if (next) {
+                    this.trigger(next.cycle0, next.cycle1, next.planet);
+                }
             }
         }
     }
