@@ -21,6 +21,7 @@ import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
 import { url } from 'inspector';
+import Music from './components/Music';
 
 
 function App() {
@@ -285,6 +286,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <ThreeSimulator />
+      <Music urls={{ default: "assets/deepblue.mp3" }} currentTrack="default" />
       <Box sx={{ backgroundColor: "transparent", minHeight: "100vh", padding: "30px" }}>
         <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Grid item xs={12} md={7}>
@@ -317,35 +319,35 @@ function App() {
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => {setStep(0); setUploadMenu(true);}}>
+              onClick={() => { setStep(0); setUploadMenu(true); }}>
               Step 0: Load Data
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => {setStep(1); setUploadMenu(false);}}>
+              onClick={() => { setStep(1); setUploadMenu(false); }}>
               Step 1: Filtering
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => {setStep(2); setUploadMenu(false);}}>
+              onClick={() => { setStep(2); setUploadMenu(false); }}>
               Step 2: Smoothing
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => {setStep(3); setUploadMenu(false);}}>
+              onClick={() => { setStep(3); setUploadMenu(false); }}>
               Step 3: Detect Peaks
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained" disabled={isLocked}
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => {setStep(4); setUploadMenu(false);}}>
+              onClick={() => { setStep(4); setUploadMenu(false); }}>
               Step 4: Detection Result
             </Button>
           </Grid>
@@ -366,20 +368,20 @@ function App() {
           />}
         </div>
         <div className='description'>
-          {uploadMenu?
+          {uploadMenu ?
             <div>
               <p className='title-text'>Step 1. Load Seismic Data</p>
               <p className='description-text'>Upload your own CSV file or select and load a default event data.</p>
               <Grid item>
-                <FileUploadButton 
-                  onFileLoad={handleFileLoad} 
-                  isDisabled={isLoaded} 
-                  setDisabled={setIsLoaded} 
+                <FileUploadButton
+                  onFileLoad={handleFileLoad}
+                  isDisabled={isLoaded}
+                  setDisabled={setIsLoaded}
                   processStatus={processStatus}
                   setProcessStatus={setProcessStatus}
                 />
-                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
-                <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Selected Event</InputLabel>
+                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt: -0.4 }} size="small">
+                  <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Selected Event</InputLabel>
                   <Select
                     id="demo-default-event"
                     value={defaultEvent}
@@ -402,10 +404,10 @@ function App() {
                   >
                     {planet === "lunar" ? events_lunar.map((event) => (
                       <MenuItem key={event} value={event} sx={{ color: "black" }}>{event}</MenuItem>
-                    )) : 
-                    events_mars.map((event) => 
-                      <MenuItem key={event} value={event} sx={{ color: "black" }}>{event}</MenuItem>
-                    )}
+                    )) :
+                      events_mars.map((event) =>
+                        <MenuItem key={event} value={event} sx={{ color: "black" }}>{event}</MenuItem>
+                      )}
                   </Select>
                 </FormControl>
                 <Button variant="contained"
@@ -413,10 +415,10 @@ function App() {
                   onClick={() => handleUseDefault(dataUrl)} disabled={isLoaded}>
                   Load Default Event
                 </Button>
-                <h3 className='loading-info'>{ processStatus }</h3>
+                <h3 className='loading-info'>{processStatus}</h3>
               </Grid>
             </div>
-            : 
+            :
             <div>
               <p className='title-text'>{title}</p>
               <p className='description-text'>{description}</p>
