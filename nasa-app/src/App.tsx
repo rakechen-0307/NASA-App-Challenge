@@ -7,10 +7,14 @@ import SeismicPlot from './components/SeismicPlot';
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
 import { AppBar, ThemeProvider, Toolbar } from '@mui/material';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 // theme import
 import theme from './theme';
-import { Box, Typography, Grid, Button, IconButton, Stack, Fade } from '@mui/material';
+import { Box, Typography, Grid, Button, IconButton, Stack } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoIcon from '@mui/icons-material/Info';
 import { MaterialUISwitch } from './components/switches';
@@ -20,6 +24,7 @@ import { Planet } from './types/Three';
 
 import lunarData from './data/lunar.json';
 import marsData from './data/mars.json';
+
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -37,6 +42,7 @@ function App() {
     endLocations: []
   });
   const [useDefault, setUseDefault] = useState<boolean>(false);
+  const [defaultEvent, setDefaultEvent] = useState<string>('');
 
   let defualtData = lunarData;
   let ts = 0.1509;
@@ -57,7 +63,14 @@ function App() {
     "2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     "3. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     "4. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-  ]
+  ];
+
+  const events = [
+    "lunar 1",
+    "lunar 2",
+    "mars 1",
+    "mars 2"
+  ];
 
   useEffect(() => {
     if (planet === "lunar") {
@@ -196,6 +209,12 @@ function App() {
     const loadedData = data.data.map((d: any) => [0, d.x, d.y])
     handleFileLoad(loadedData);
   }
+
+  const handleDefaultValueChange = (event: SelectChangeEvent) => {
+    console.log(event.target.value);
+    setDefaultEvent(event.target.value);
+  };
+
   // const musicUrls = {
   //   lunar: "assets/indian.mp3",
   //   mars: "assets/indian.mp3"
@@ -235,7 +254,24 @@ function App() {
         {/* Steps */}
         <Grid container justifyContent="left" spacing={1} sx={{ mb: 4 }}>
           <Grid item>
-            <FileUploadButton onFileLoad={handleFileLoad} isDisabled={useDefault} />
+            {useDefault ? (
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="default-event">Event</InputLabel>
+                <Select
+                  labelId="default-event"
+                  id="demo-default-event"
+                  value={defaultEvent}
+                  onChange={handleDefaultValueChange}
+                  label="Age"
+                >
+                  {events.map((event) => {
+                    return <MenuItem value={event}>{event}</MenuItem>
+                  })}
+                </Select>
+              </FormControl>
+            ) : (
+              <FileUploadButton onFileLoad={handleFileLoad} />
+            )}
           </Grid>
           <Grid item>
             <Button variant="contained"

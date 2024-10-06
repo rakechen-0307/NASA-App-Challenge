@@ -5,10 +5,9 @@ import Papa from "papaparse";
 
 interface FileUploadButtonProps {
   onFileLoad: (data: any[]) => void;
-  isDisabled: boolean;
 }
 
-const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad, isDisabled }) => {
+const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad }) => {
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,7 +47,6 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad, isDisab
         startIcon={<UploadIcon />} 
         onClick={handleButtonClick}
         sx = {{mb: 2}}
-        disabled={isDisabled}
       >
         Upload CSV
       </Button>
