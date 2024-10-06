@@ -21,10 +21,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
+import { url } from 'inspector';
 // import Music from './components/Music';
-
-// import lunarData from './data/lunar.json';
-// import marsData from './data/mars.json';
 
 
 function App() {
@@ -43,9 +41,9 @@ function App() {
     startLocations: [],
     endLocations: []
   });
-  const [useDefault, setUseDefault] = useState<boolean>(false);
   const [defaultEvent, setDefaultEvent] = useState<string>('');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
+  const [dataUrl, setDataUrl] = useState<string>('');
 
   let defualtData = "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0";
   let ts = 0.1509;
@@ -75,11 +73,21 @@ function App() {
     "Peaks with just the right left and right slope, determined based on their ratio, exhibit the wanted exponential-decaying profile, and are picked out as the seismic events. The red line sets the onset to the seismic event."
   ];
 
-  const events = [
+  const events_lunar = [
     "lunar 1",
     "lunar 2",
+  ];
+  const events_mars = [
     "mars 1",
-    "mars 2"
+    "mars 2",
+  ];
+  const urls_lunar = [
+    "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0",
+  ];
+  const urls_mars = [
+    "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0",
   ];
 
   useEffect(() => {
@@ -215,24 +223,26 @@ function App() {
   };
 
   const handleUseDefault = (dataURL: string) => {
-    setUseDefault(!useDefault);
-
-    if (!useDefault) {
-      fetch(dataURL)
-        .then(response => response.text())  // Convert response to text
-        .then(jsonData => {
-          const loadedData = JSON.parse(jsonData).data.map((d: any) => [0, d.x, d.y])
-          handleFileLoad(loadedData);
-        })
-        .catch(error => {
-          console.error("Error fetching default data:", error);
-        });
-    }
+    fetch(dataURL)
+      .then(response => response.text())  // Convert response to text
+      .then(jsonData => {
+        const loadedData = JSON.parse(jsonData).data.map((d: any) => [0, d.x, d.y])
+        handleFileLoad(loadedData);
+      })
+      .catch(error => {
+        console.error("Error fetching default data:", error);
+      });
   }
 
   const handleDefaultValueChange = (event: SelectChangeEvent) => {
-    console.log(event.target.value);
+    // console.log(event.target.value);
     setDefaultEvent(event.target.value);
+    if (planet === "lunar") {
+      setDataUrl(urls_lunar[events_lunar.indexOf(event.target.value)]);
+    }
+    else if (planet === "mars") {
+      setDataUrl(urls_mars[events_mars.indexOf(event.target.value)]);
+    }
   };
 
   // const musicUrls = {
@@ -330,32 +340,44 @@ function App() {
               <p className='title-text'>Select Seismic Data</p>
               <p className='description-text'>Choose a default event or upload your own CSV file.</p>
               <Grid item>
-                {useDefault ? (
-                  <FormControl variant="standard" sx={{ m: 1, minWidth: 120, color: "white" }}>
-                    <InputLabel id="default-event">Event</InputLabel>
-                    <Select
-                      labelId="default-event"
-                      id="demo-default-event"
-                      value={defaultEvent}
-                      onChange={handleDefaultValueChange}
-                      label="Age"
-                    >
-                      {events.map((event) => {
-                        return <MenuItem value={event}>{event}</MenuItem>
-                      })}
-                    </Select>
-                  </FormControl>
-                ) : (
-                  <FileUploadButton onFileLoad={handleFileLoad} />
-                )}
-              </Grid>
-              {/* <Grid item>
+                <FileUploadButton onFileLoad={handleFileLoad} />
+                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white" }} size="small">
+                  <Select
+                    labelId="default-event"
+                    id="demo-default-event"
+                    value={defaultEvent}
+                    onChange={handleDefaultValueChange}
+                    label="Age"
+                    sx={{
+                      color: "white",
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white', // Change border color to white
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white', // Change border color on hover
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white', // Change border color when focused
+                      },
+                      '& .MuiSelect-icon': {
+                        color: 'white', // Change the dropdown icon color to white
+                      }
+                    }}
+                  >
+                    {planet === "lunar" ? events_lunar.map((event) => (
+                      <MenuItem key={event} value={event} sx={{ color: "black" }}>{event}</MenuItem>
+                    )) : 
+                    events_mars.map((event) => 
+                      <MenuItem key={event} value={event} sx={{ color: "black" }}>{event}</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
                 <Button variant="contained"
                   sx={{ backgroundColor: "#3c8eaa", color: "white" }}
-                  onClick={() => handleUseDefault(defualtData)}>
-                  {useDefault ? "Upload CSV" : "Use Default"}
+                  onClick={() => handleUseDefault(dataUrl)}>
+                  Load Default Event
                 </Button>
-              </Grid> */}
+              </Grid>
             </div>
             : 
             <div>

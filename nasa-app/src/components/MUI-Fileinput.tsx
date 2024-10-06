@@ -46,7 +46,7 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileLoad }) => {
         variant="outlined" 
         startIcon={<UploadIcon />} 
         onClick={handleButtonClick}
-        sx = {{mb: 2}}
+        // sx = {{mb: 2}}
       >
         Upload CSV
       </Button>
