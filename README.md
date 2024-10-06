@@ -18,6 +18,8 @@ Unfortunately, this app can only run on Windows due to the limitation of MATLAB.
 You can also access our [interactive website](https://rakechen-0307.github.io/detect-the-moooove) to further understand how our algorithm works.
 > If the default files on the website fails, you can still upload *demo_lunar.csv" and *demo_mars.csv" to try it. Just don't forget change the celestial body at the left lower corner!
 
+> If too many people access the website at the same time, the website will load the data quite slowly.
+
 ## File format
 For both app and website demo, **you must follow the following format and store as csv file**.
 
