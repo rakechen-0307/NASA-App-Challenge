@@ -20,12 +20,15 @@ if strcmp(target_body, 'lunar')
     peak_std_num = 2;               % number of std to be recognized as a peak
     slope_ratio_threshold = 1.5;    %
     detect_level = 0.3;
+    delay_compensate = 549;
     load ./filter/lunar_bpf.mat
+    compensate_ratio = 1.1427;
 else
     smoothing_std = 3e2;            % std of the Gaussian smoothing
     peak_std_num = 1.3;             % number of std to be recognized as a peak (recommend 2~3)
     slope_ratio_threshold = 1.5;    %
     detect_level = 0.3;
+    delay_compensate = 0;
     load ./filter/mars_bpf.mat
 end
 
