@@ -1,6 +1,6 @@
 # NASA-App-Challenge
 
-::ℹ️ Notice: the catalog data used for scoring is in the *catalog* folder
+ℹ️ **Notice: the catalog data used for scoring is in the *catalog* folder**
 
 ## How to run the code
 You could run the **main.m** directly. 
