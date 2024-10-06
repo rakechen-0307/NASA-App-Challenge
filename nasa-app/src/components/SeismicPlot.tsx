@@ -12,24 +12,32 @@ const step2Frames = [20, 20]; // step2 animation frames
 const step3Frames = [20, 10, 30]; // step3 animation frames
 const step4Frames = 50; // step4 animation frames for each peak
 const maxMarkerSize = 10; // step3 peak marker size
-const axisColor = "#9b9ebd";
-const dataColor = "#57c5cf";
-
+const axisColor = "#7ca7bf";
+const dataColor = "#5acedb";
+const gridColor = "#5e7f91";
 
 const commonAxisConfig = {
   lineColor: axisColor,
   tickColor: axisColor,
-  gridColor: "#34dbeb",
   labelFontColor: axisColor,
   titleFontColor: axisColor,
   lineThickness: 1,
   tickThickness: 1,
-  gridThickness: 0,
+  titleFontSize: 14,
+  titleFontFamily: "prompt",
+  labelFontFamily: "prompt",
+};
+
+const yAxisConfig = {
+  gridColor: gridColor,
+  gridThickness: 0.5,
+  valueFormatString: "0.0e0#",
 };
 
 const commonPlotConfig = {
   theme: "dark1",
   backgroundColor: "transparent",
+  height: 200,
 };
 
 interface SeismicPlotProps {
@@ -290,9 +298,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Render based on step value
     if (step === 0) {
       const options = {
-        theme: "dark1",
-        backgroundColor: "transparent",
-        height: 200,
+        ...commonPlotConfig,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -300,6 +306,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisY: { 
           title: 'Amplitude (m/s)',
           ...commonAxisConfig,
+          ...yAxisConfig,
           viewportMinimum: 1.5 * minimum,
           viewportMaximum: 1.5 * maximum,
         },
@@ -320,9 +327,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Bandpass filter rendering
     else if (step === 1) {
       const options = {
-        theme: "dark1",
-        backgroundColor: "transparent",
-        height: 200,
+        ...commonPlotConfig,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -331,6 +336,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisY: { 
           title: 'Amplitude (m/s)',
           ...commonAxisConfig,
+          ...yAxisConfig,
           viewportMinimum: 1.5 * minimum,
           viewportMaximum: 1.5 * maximum,
         },
@@ -349,9 +355,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Gaussian smoothing rendering
     else if (step === 2) {
       const options = {
-        theme: "dark1",
-        backgroundColor: "transparent",
-        height: 200,
+        ...commonPlotConfig,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -360,6 +364,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisY: { 
           title: 'Amplitude (m/s)',
           ...commonAxisConfig,
+          ...yAxisConfig,
           viewportMinimum: minimum,
           viewportMaximum: maximum,
         },
@@ -378,9 +383,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Peaks and slopes rendering
     else if (step === 3) {
       const options = {
-        theme: "dark1",
-        backgroundColor: "transparent",
-        height: 200,
+        ...commonPlotConfig,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -388,6 +391,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisY: {
           title: 'Amplitude (m/s)',
           ...commonAxisConfig,
+          ...yAxisConfig,
           stripLines: [{ value: currentLevel, thickness: 2, color: '#fcc419' }]
         },
         data: [
@@ -408,9 +412,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
 
     else if (step === 4) {
       const options = {
-        theme: "dark1",
-        backgroundColor: "transparent",
-        height: 300,
+        ...commonPlotConfig,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -418,6 +420,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisY: {
           title: 'Amplitude (m/s)',
           ...commonAxisConfig,
+          ...yAxisConfig,
         },
         data: [
           { type: 'line', dataPoints: data, color: dataColor },
