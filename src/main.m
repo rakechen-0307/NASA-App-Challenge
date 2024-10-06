@@ -4,7 +4,7 @@ clear; clc; close all
 
 % Choose which celestial body: 'lunar' or 'mars'
 % Give filepath (absolute or relative are both fine, must be .csv)
-filepath = "../demo_mars.csv";     % You can also use demo_mars.csv or your own file
+filepath = "../demo_lunar.csv";     % You can also use demo_mars.csv or your own file
 
 % Save figure? (true: save)
 save_figure = false;
