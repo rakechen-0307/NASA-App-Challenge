@@ -22,8 +22,8 @@ import { MaterialUISwitch } from './components/switches';
 import { Planet } from './types/Three';
 // import Music from './components/Music';
 
-import lunarData from './data/lunar.json';
-import marsData from './data/mars.json';
+// import lunarData from './data/lunar.json';
+// import marsData from './data/mars.json';
 
 
 function App() {
@@ -43,8 +43,9 @@ function App() {
   });
   const [useDefault, setUseDefault] = useState<boolean>(false);
   const [defaultEvent, setDefaultEvent] = useState<string>('');
+  const [uploadMenu, setUploadMenu] = useState<boolean>(false);
 
-  let defualtData = lunarData;
+  // let defualtData = lunarData;
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -59,10 +60,10 @@ function App() {
     0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
 
   const descriptions = [
-    "1. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    "2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    "3. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    "4. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    "Here is the filtered data. The original signal is filtered with a special tailored least squares filter. It is clearly shown that several unwanted peaks of noises are filtered out. This helps us preliminarily exclude some noises that we are not interested in, leaving a cleaner profile.",
+    "Here is the data after envelope generation. In this step, we took the absolute value of the signal and then applied a Gaussian smoothing. These filters help us further reduce unwanted peaks. And the cleaner profile also allows simpler future analysis.",
+    "Here are the detected peaks and the corresponding slopes for rising and falling edges. The light blue line represents the detection threshold for intensity, the red vertical lines represent discovered peak positions, the green dotted lines represent the slopes to the left and right of the peaks, and the pink lines represent the magnitude of the slope ratio (left divided by right). These peaks are candidates to seismic events. We'll need to further check their slope in the next step.",
+    "Here are selected peaks, i.e. locations where our algorithm thinks there exists a seismic event. The red lines represent our detected start time based on the slope ratio, and the green boxes mark the duration of each seismic event. The left and right slopes are further extended to intersect the horizontal axis, marking the onset and the end to the seismic event."
   ];
 
   const events = [
@@ -74,7 +75,7 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
-      defualtData = lunarData;
+      // defualtData = lunarData;
       ts = 0.1509;
       std = 2;
       smoothingStd = 600;
@@ -89,7 +90,7 @@ function App() {
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
     }
     else if (planet === "mars") {
-      defualtData = marsData;
+      // defualtData = marsData;
       ts = 0.05;
       std = 1.3;
       smoothingStd = 3e2;
@@ -254,57 +255,37 @@ function App() {
         {/* Steps */}
         <Grid container justifyContent="left" spacing={1} sx={{ mb: 4 }}>
           <Grid item>
-            {useDefault ? (
-              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                <InputLabel id="default-event">Event</InputLabel>
-                <Select
-                  labelId="default-event"
-                  id="demo-default-event"
-                  value={defaultEvent}
-                  onChange={handleDefaultValueChange}
-                  label="Age"
-                >
-                  {events.map((event) => {
-                    return <MenuItem value={event}>{event}</MenuItem>
-                  })}
-                </Select>
-              </FormControl>
-            ) : (
-              <FileUploadButton onFileLoad={handleFileLoad} />
-            )}
-          </Grid>
-          <Grid item>
             <Button variant="contained"
-              sx={{ backgroundColor: "#3c8eaa", color: "white" }}
-              onClick={() => handleUseDefault(defualtData)}>
-              {useDefault ? "Upload CSV" : "Use Default"}
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setUploadMenu(true)}>
+              Upload CSV
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => setStep(1)}>
+              onClick={() => {setStep(1); setUploadMenu(false);}}>
               Bandpass Filter
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => setStep(2)}>
+              onClick={() => {setStep(2); setUploadMenu(false);}}>
               Gaussian Smoothing
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => setStep(3)}>
+              onClick={() => {setStep(3); setUploadMenu(false);}}>
               Find Peaks & Slopes
             </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
               sx={{ backgroundColor: "#2e2e2e", color: "white" }}
-              onClick={() => setStep(4)}>
+              onClick={() => {setStep(4); setUploadMenu(false);}}>
               Mark Seismic Positions
             </Button>
           </Grid>
@@ -325,7 +306,40 @@ function App() {
           />}
         </div>
         <div className='description'>
-          <p className='description-text'>{description}</p>
+          {uploadMenu?
+            <div>
+              <p className='description-text'>Upload CSV</p>
+                <Grid item>
+                  {useDefault ? (
+                    <FormControl variant="standard" sx={{ m: 1, minWidth: 120, color: "white" }}>
+                      <InputLabel id="default-event">Event</InputLabel>
+                      <Select
+                        labelId="default-event"
+                        id="demo-default-event"
+                        value={defaultEvent}
+                        onChange={handleDefaultValueChange}
+                        label="Age"
+                      >
+                        {events.map((event) => {
+                          return <MenuItem value={event}>{event}</MenuItem>
+                        })}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <FileUploadButton onFileLoad={handleFileLoad} />
+                  )}
+                </Grid>
+                {/* <Grid item>
+                  <Button variant="contained"
+                    sx={{ backgroundColor: "#3c8eaa", color: "white" }}
+                    onClick={() => handleUseDefault(defualtData)}>
+                    {useDefault ? "Upload CSV" : "Use Default"}
+                  </Button>
+                </Grid> */}
+            </div>
+            : 
+            <p className='description-text'>{description}</p>
+          }
         </div>
 
         {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}
