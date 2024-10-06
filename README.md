@@ -3,7 +3,7 @@
 ℹ️ **Notice: the catalog data used for scoring is in the *catalog* folder**
 
 ## How to run the code
-You could run the **main.m** directly. 
+You could run the **src/main.m** directly. 
 Simply change which celestial body your interested seismic event is on, and make sure to give the path to the original data (must in .csv format).
 
 Have a nice day!
