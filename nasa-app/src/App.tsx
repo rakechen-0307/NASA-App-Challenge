@@ -18,8 +18,8 @@ import { MaterialUISwitch } from './components/switches';
 import { Planet } from './types/Three';
 // import Music from './components/Music';
 
-import lunarData from './data/lunar.json';
-import marsData from './data/mars.json';
+// import lunarData from './data/lunar.json';
+// import marsData from './data/mars.json';
 
 function App() {
   const [step, setStep] = useState<number>(0);
@@ -39,7 +39,7 @@ function App() {
   const [fadeIn, setFadeIn] = useState<boolean>(false);  // descriptions' fade in effect
   const [useDefault, setUseDefault] = useState<boolean>(false);
 
-  let defualtData = lunarData;
+  // let defualtData = lunarData;
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -62,7 +62,7 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
-      defualtData = lunarData;
+      // defualtData = lunarData;
       ts = 0.1509;
       std = 2;
       smoothingStd = 600;
@@ -77,7 +77,7 @@ function App() {
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
     }
     else if (planet === "mars") {
-      defualtData = marsData;
+      // defualtData = marsData;
       ts = 0.05;
       std = 1.3;
       smoothingStd = 3e2;
@@ -93,13 +93,7 @@ function App() {
   }, [planet]);
 
   useEffect(() => {
-    if (step > 0) {
-      setFadeIn(false); // Trigger fade out
-      setTimeout(() => {
-        setDescription(descriptions[step - 1]);
-        setFadeIn(true);
-      }, 300); // Trigger fade in after small delay
-    }
+    setDescription(descriptions[step - 1]);
   }, [step]);
 
   const quakeIntervalRef = useRef<any>(null);
@@ -243,11 +237,11 @@ function App() {
             <FileUploadButton onFileLoad={handleFileLoad} isDisabled={useDefault} />
           </Grid>
           <Grid item>
-            <Button variant="contained"
+            {/*<Button variant="contained"
               sx={{ backgroundColor: "#3c8eaa", color: "white" }}
               onClick={() => handleUseDefault(defualtData)}>
               {useDefault ? "Upload CSV" : "Use Default"}
-            </Button>
+            </Button>*/}
           </Grid>
           <Grid item>
             <Button variant="contained"
@@ -294,9 +288,7 @@ function App() {
           />}
         </div>
         <div className='description'>
-          <Fade in={fadeIn} timeout={500}>
-            <Typography variant="body1" className="description-text">{description}</Typography>
-          </Fade>
+          <p className='description-text'>{ description }</p>
         </div>
 
         {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}
