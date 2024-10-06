@@ -7,7 +7,6 @@ target_body = 'mars';
 
 % Give filepath (absolute or relative are both fine, must be .csv)
 filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\mars\test\data\XB.ELYSE.02.BHV.2019-05-23HR02_evid0041.csv";
-
 % Save figure? (true: save
 save_figure = false;
 
@@ -15,6 +14,7 @@ save_figure = false;
 figure_save_location = "D:\NASA_Hackathon\NASA-App-Challenge\hello";
 
 %% Initialize hyperparameters
+
 if strcmp(target_body, 'lunar')
     smoothing_std = 6e2;            % std of the Gaussian smoothing
     peak_std_num = 2;               % number of std to be recognized as a peak
@@ -56,8 +56,9 @@ velocity = conv(velocity_original, bp_filter_coef, 'same');
 subplot(plot_count, 1, 2)
 plot(time, velocity, "LineWidth", line_width)
 title("Step1: Bandpass Filter"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
+bp_signal = velocity;
 
-%% Step 2: Absolute Value + Smoothing + Normalization
+%% Step 2: Envelope Generation
 
 % Absolute value
 velocity = abs(velocity);
@@ -78,7 +79,7 @@ velocity = velocity .* (velocity >= 0);
 subplot(plot_count, 1, 3);
 plot(time, velocity, "LineWidth", line_width);
 title("Step2: Absolute Value + Smoothing + Normalization"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
-
+envelope_generation_signal = velocity;
 %% Step 3: Find Peaks + Slopes
 
 % Find peaks
@@ -120,26 +121,37 @@ hold off;
 
 %% Step 4: Select the Peaks
 peaks = [];
-slopes = [];
+end_events = [];
+lower_slopes = [];
+upper_slopes = [];
 for i = 1:size(peak_indices, 1)
     % if (abs(right_slopes(i)) < slope_threshold) && (slope_ratios(i) > slope_ratio_threshold)
     if (slope_ratios(i) > slope_ratio_threshold)
-        peaks = [peaks peak_indices(i, 1)];
-        slopes = [slopes left_slopes(i)];
+        peaks = [peaks peak_indices(i, 2)];
+        lower_slopes = [lower_slopes left_slopes(i)];
+        upper_slopes = [upper_slopes right_slopes(i)];
     end
 end
 subplot(plot_count, 1, 5); hold on;
-plot(time, velocity_original, "LineWidth", line_width);
+ylim([min(velocity_original), max(velocity_original)]);
+
 if ~isempty(peaks)
     for i = 1:length(peaks)
         x1 = peaks(i);
         y1 = velocity(x1);
-        x0 = x1 - y1 / slopes(i);
+        x0 = x1 - y1 / lower_slopes(i);
+        x2 = x1 - y1 / upper_slopes(i);
         xline(x0 * ts, "LineWidth", line_width, "Color", "red");
+        % xline(x2 * ts, "LineWidth", line_width, "Color", "green");
+        p1 = patch([x0 x2 x2 x0]*ts, [min(velocity_original), min(velocity_original), max(velocity_original), max(velocity_original)], 'green');
+        p1.FaceVertexAlphaData = 0.2;
+        p1.FaceAlpha = 'flat';
+        p1.EdgeColor = 'none';
     end
 end
+plot(time, velocity_original, "LineWidth", line_width);
+
 title("Step4: Pick Peaks"); xlabel("Time (s)"); ylabel("Velocity (m/s)");
-peak_time = time(peaks);
 
 %% Store the figure
 if save_figure
