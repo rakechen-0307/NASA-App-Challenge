@@ -289,7 +289,7 @@ function App() {
         <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Grid item xs={12} md={7}>
             <Typography variant="h3" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "bold", fontWeight: 700, color: "white", mr: 4 }}>
-              Seismic Waveform Detection
+              Detect the Moooove
             </Typography>
           </Grid>
           <Grid item xs={12} md={5}>
