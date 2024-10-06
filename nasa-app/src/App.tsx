@@ -7,7 +7,7 @@ import SeismicPlot from './components/SeismicPlot';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
-import { ThemeProvider } from '@mui/material';
+import { AppBar, ThemeProvider, Toolbar } from '@mui/material';
 
 // theme import
 import theme from './theme';
@@ -173,90 +173,100 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme = {theme}>
+    <ThemeProvider theme={theme}>
       <ThreeSimulator />
-      <Box sx={{ backgroundColor: "transparent", minHeight: "100vh", padding: "50px" }}>
-      <Grid container justifyContent="left" spacing={1} sx={{mb:4}}>
-          <Grid item>
-            <Typography variant="h3" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "bold", fontWeight: 700, color: "white", mr:4 }}>
+      <Box sx={{ backgroundColor: "transparent", minHeight: "100vh", padding: "30px" }}>
+        <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+          <Grid item xs={12} md={7}>
+            <Typography variant="h3" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "bold", fontWeight: 700, color: "white", mr: 4 }}>
               Seismic Waveform Detection
             </Typography>
           </Grid>
-          <Grid item>
-            <Typography variant="h4" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "italic", fontWeight: 300, color: "white" }}>
-              by Reaching Stars
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Stack direction="row" spacing={1}>
-              <IconButton aria-label="delete" sx={{color:"white"}}>
-                <GitHubIcon sx={{ fontSize: 40 }}/>
-              </IconButton>
-              <IconButton aria-label="delete" sx={{color:"white"}}>
-                <InfoIcon sx={{ fontSize: 40 }}/>
-              </IconButton>
+          <Grid item xs={12} md={5}>
+            <Stack direction="row" spacing={2} alignItems="center" justifyContent="flex-end">
+              <Typography variant="h4" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "italic", fontWeight: 300, color: "white" }}>
+                by Reaching Stars
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <IconButton aria-label="delete" sx={{ color: "white" }}>
+                  <GitHubIcon sx={{ fontSize: 40 }} />
+                </IconButton>
+                <IconButton aria-label="delete" sx={{ color: "white" }}>
+                  <InfoIcon sx={{ fontSize: 40 }} />
+                </IconButton>
+              </Stack>
             </Stack>
           </Grid>
         </Grid>
-        <Typography variant="h6" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "normal", fontWeight: 250, color: "white", mb:1 }}>
+        <Typography variant="h6" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "normal", fontWeight: 250, color: "white", mb: 1 }}>
           This is a demo of our seismic waveform detection algorithm. Upload a CSV file and choose the step you want to observe !
         </Typography>
-        
-        {/* Steps */}
-        <Grid container justifyContent="left" spacing={1} sx={{mb:4}}>
-        <Grid item>
-            <FileUploadButton onFileLoad={handleFileLoad} />
-        </Grid>
-        <Grid item>
-          <Button variant="contained" 
-                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
-                  onClick={() => setStep(1)}>
-            Step 1: Bandpass Filter
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" 
-                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
-                  onClick={() => setStep(2)}>
-            Step 2: Gaussian Smoothing
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" 
-                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
-                  onClick={() => setStep(3)}>
-            Step 3: Find Peaks & Slopes
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" 
-                  sx={{ backgroundColor: "#2e2e2e", color: "white" }} 
-                  onClick={() => setStep(4)}>
-            Step 3: Mark Seismic Positions
-          </Button>
-        </Grid>
-        <Grid item>
-          <MaterialUISwitch defaultChecked/>
-        </Grid>
-      </Grid>
 
-      {/*plotting*/}
-      {processedData.data.length > 0 && <SeismicPlot
-        step={step}
-        data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
-        nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
-        kernel={step === 1 ? bandPassKernel(ts, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, ts, processedData.filteredData) : []}
-        peaks={processedData.peaksData}
-        slopes={processedData.slopesData}
-        level={processedData.level}
-        startLocations={processedData.startLocations}
-        endLocations={processedData.endLocations}
-      />}
-      
-      <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
-      <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>
-      <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>
+        {/* Steps */}
+        <Grid container justifyContent="left" spacing={1} sx={{ mb: 4 }}>
+          <Grid item>
+            <FileUploadButton onFileLoad={handleFileLoad} />
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(1)}>
+              Step 1: Bandpass Filter
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(2)}>
+              Step 2: Gaussian Smoothing
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(3)}>
+              Step 3: Find Peaks & Slopes
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#2e2e2e", color: "white" }}
+              onClick={() => setStep(4)}>
+              Step 3: Mark Seismic Positions
+            </Button>
+          </Grid>
+        </Grid>
+
+        {/*plotting*/}
+        {processedData.data.length > 0 && <SeismicPlot
+          step={step}
+          data={step === 0 ? processedData.data : step === 1 ? processedData.data : step === 2 ? processedData.filteredData : step === 3 ? processedData.normalizedData : step === 4 ? processedData.data : []}
+          nextData={step === 1 ? processedData.filteredData : step === 2 ? processedData.smoothedData : []}
+          kernel={step === 1 ? bandPassKernel(ts, processedData.data, bp_coef) : step === 2 ? gaussianKernel(std, ts, processedData.filteredData) : []}
+          peaks={processedData.peaksData}
+          slopes={processedData.slopesData}
+          level={processedData.level}
+          startLocations={processedData.startLocations}
+          endLocations={processedData.endLocations}
+        />}
+
+        <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
+        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>
+        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>
       </Box>
+
+      {/* Footer */}
+      <AppBar position="fixed" color="transparent" sx={{ top: 'auto', bottom: 0, boxShadow: 'none' }}>
+        <Toolbar>
+          <MaterialUISwitch defaultChecked onChange={handlePlanetSwitch} />
+          <Typography variant="body1" sx={{ fontFamily: 'Prompt, sans-serif', color: 'white', ml: 2 }}>
+            {planet === "lunar" ? "Moon" : "Mars"}
+          </Typography>
+          {/* <Typography variant="body1" sx={{ flexGrow: 1, textAlign: 'right', color: 'white' }}>
+            © 2024 Reaching Stars
+          </Typography> */}
+        </Toolbar>
+      </AppBar>
     </ThemeProvider>
     // <h1>CSV Import in React.js</h1>
     // <FileInput onFileLoad={handleFileLoad} />
