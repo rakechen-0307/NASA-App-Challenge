@@ -177,6 +177,9 @@ function App() {
         endLocations: endLocations
       })
 
+      setIsLoaded(false);
+      setIsLocked(false);
+
       // Stop the quakes once processing is done
       clearInterval(quakeIntervalRef.current);
     }
@@ -245,10 +248,7 @@ function App() {
       widthFactor: widthFactor,
       bp_coef: bp_coef
     }
-    console.log("samplingTime: ", samplingTime);
     workerRef.current?.postMessage({ loadedData, params });
-    setIsLoaded(false);
-    setIsLocked(false);
     setProcessStatus("");
   };
 
