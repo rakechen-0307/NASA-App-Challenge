@@ -7,6 +7,13 @@ import ThreeController from "../ThreeController";
 export type UpdateLightPosition = (pos: PolarPosition) => void;
 
 
+type Pending = {
+    cycle0: number;
+    cycle1: number;
+    planet: Planet;
+}
+
+
 function calculateAxisAndAngle(lightPosition: PolarPosition) {
     const initialPosition = PolarToCartesian(lightPosition);
     const targetPosition = PolarToCartesian({
@@ -29,8 +36,11 @@ class SwitchPlanet {
     controller: ThreeController;
 
     running: boolean;
+    pendings: Pending[];
+
     stage: number;
     counter: number;
+
     deltaAngle: number;
     stageCycle0: number;
     stageCycle1: number;
@@ -46,6 +56,8 @@ class SwitchPlanet {
         this.controller = controller;
 
         this.running = false;
+        this.pendings = [];
+
         this.stage = 0;
         this.counter = 0;
         this.deltaAngle = 0;
@@ -64,6 +76,11 @@ class SwitchPlanet {
 
     trigger(cycle0: number, cycle1: number, planet: Planet) {
         if (this.running) {
+            this.pendings.push({
+                cycle0: cycle0,
+                cycle1: cycle1,
+                planet: planet,
+            });
             return;
         }
 
@@ -89,7 +106,7 @@ class SwitchPlanet {
         this.controller.updateLightPosition(CartesianToPolar(this.currentPosition));
 
         this.counter += 1;
-        if (this.stage === 0 && this.counter == this.stageCycle0) {
+        if (this.stage === 0 && this.counter === this.stageCycle0) {
             this.stage = 1;
             this.counter = 0;
             this.deltaAngle = (Math.PI * 2 - this.targetAngle) / this.stageCycle1;
@@ -97,10 +114,17 @@ class SwitchPlanet {
 
             this.controller.updatePlanetMaterial(this.targetPlanet);
         }
-        if (this.stage === 1 && this.counter == this.stageCycle1) {
+        if (this.stage === 1 && this.counter === this.stageCycle1) {
             this.stage = 0;
             this.counter = 0;
             this.running = false;
+
+            this.controller.updateLightPosition(CartesianToPolar(this.initialPosition));
+
+            const next = this.pendings.pop();
+            if (next) {
+                this.trigger(next.cycle0, next.cycle1, next.planet);
+            }
         }
     }
 }
