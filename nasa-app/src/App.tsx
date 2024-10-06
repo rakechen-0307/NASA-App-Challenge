@@ -16,6 +16,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
+// import Music from './components/Music';
 
 import lunarData from './data/lunar.json';
 import marsData from './data/mars.json';
@@ -136,11 +137,11 @@ function App() {
   const handlePlanetSwitch = () => {
     if (planet === "lunar") {
       setPlanet("mars");
-      threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS);
+      threeController.triggerUpdatePlanetType(100, 100, Planet.MARS);
     }
     else if (planet === "mars") {
       setPlanet("lunar");
-      threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON);
+      threeController.triggerUpdatePlanetType(100, 100, Planet.MOON);
     }
   }
 
@@ -200,6 +201,11 @@ function App() {
     setUseDefault(!useDefault);
     handleFileLoad(data.data);
   }
+  // const musicUrls = {
+  //   lunar: "assets/indian.mp3",
+  //   mars: "assets/indian.mp3"
+  // };
+  // <Music urls={musicUrls} currentTrack={planet} />
 
   return (
     <ThemeProvider theme={theme}>

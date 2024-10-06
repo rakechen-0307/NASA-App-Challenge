@@ -15,6 +15,14 @@ const maxMarkerSize = 10; // step3 peak marker size
 const axisColor = "#7ca7bf";
 const dataColor = "#5acedb";
 const gridColor = "#5e7f91";
+const kernelColor = "#d99f5d";
+const kernelThickness = 3;
+const slopeMarkerSize = 5;
+const levelColor = "#d99f5d";
+const slopeColor = "#a1d97c";
+const peakMarkerColor = "#f03e3e";
+const slopeTickness = 3;
+const peakColor = "#f03e3e";
 
 const commonAxisConfig = {
   lineColor: axisColor,
@@ -331,7 +339,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
-          stripLines: [{ value: kernelLocation, thickness: 5, color: '#fcc419' }]
+          stripLines: [{ value: kernelLocation, thickness: kernelThickness, color: kernelColor }]
         },
         axisY: { 
           title: 'Amplitude (m/s)',
@@ -359,7 +367,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
-          stripLines: [{ value: kernelLocation, thickness: 5, color: '#fcc419' }]
+          stripLines: [{ value: kernelLocation, thickness: kernelThickness, color: kernelColor }]
         },
         axisY: { 
           title: 'Amplitude (m/s)',
@@ -392,15 +400,15 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
           title: 'Amplitude (m/s)',
           ...commonAxisConfig,
           ...yAxisConfig,
-          stripLines: [{ value: currentLevel, thickness: 2, color: '#fcc419' }]
+          stripLines: [{ value: currentLevel, thickness: 2, color: levelColor }]
         },
         data: [
-          { type: 'line', dataPoints: data, color: dataColor, visible: true },
-          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: '#f03e3e', markerSize: currentMarkerSize },
+          { type: 'line', dataPoints: data, color: dataColor, visible: true, markerType: 'none', markerSize: 1, lineThickness: 2 },
+          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: peakMarkerColor, markerSize: currentMarkerSize },
         ]
       };
       currentSlopes.forEach((slopeData: Data[]) => {
-        options.data.push({ type: 'line', dataPoints: slopeData, color: "#91e817", visible: slopeVisible });
+        options.data.push({ type: 'line', dataPoints: slopeData, color: slopeColor, visible: slopeVisible, markerType: 'circle', markerSize: slopeMarkerSize, lineThickness: slopeTickness });
       });
 
       return (
@@ -427,7 +435,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         ]
       };
       currentPeakLocation.forEach((location: number) => {
-        options.axisX.stripLines.push({ thickness: 5, value: location , color: '#f03e3e' });
+        options.axisX.stripLines.push({ thickness: 5, value: location , color: peakColor });
       });
 
       return (
