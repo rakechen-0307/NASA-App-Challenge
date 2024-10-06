@@ -6,7 +6,7 @@ clear; clc; close all
 target_body = 'lunar';
 
 % Give filepath (absolute or relative are both fine, must be .csv)
-filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\lunar\training\data\S12_GradeA\xa.s12.00.mhz.1970-03-25HR00_evid00003.csv";
+filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\lunar\training\data\S12_GradeA\xa.s12.00.mhz.1971-04-13HR02_evid00029.csv";
 % Save figure? (true: save)
 save_figure = false;
 
@@ -123,6 +123,7 @@ end
 hold off;
 
 %% Step 4: Select the Peaks
+figure; hold on
 peaks = [];
 end_events = [];
 lower_slopes = [];
@@ -135,7 +136,7 @@ for i = 1:size(peak_indices, 1)
         upper_slopes = [upper_slopes right_slopes(i)];
     end
 end
-subplot(plot_count, 1, 5); hold on;
+% subplot(plot_count, 1, 5); hold on;
 ylim([min(velocity_original), max(velocity_original)]);
 
 if ~isempty(peaks)

@@ -12,6 +12,18 @@ If your computer already has the compiler, you can directly run the app, **REACH
 
 Unfortunately, this app can only run on Windows due to the limitation of MATLAB.
 
+## Website demo
+You can all access our interactive website.
+
+## File format
+For both app and website demo, **you must follow the following format and store as csv file**.
+
+|time_abs|time_rel|velocity|
+|:---:|:---:|:---:|
+|XXX|YYY|ZZZ|
+
+The sampling time of Moon data is 0.1509 seconds, while the sampling time of Mars data is 0.0500 seconds. All data from [Space Apps 2024 Seismic Detection Data Packet](https://wufs.wustl.edu/SpaceApps/data/space_apps_2024_seismic_detection.zip) can be used directly.
+
 
 ## Code Description
 
@@ -77,9 +89,9 @@ Besides finding the onset to the seismic event, our code also use the same idea 
 ## Performance
 We've applied our algorithm to given training data for evaluation with the following result. The succesfulness is determined by whether our marked result contains that of the marked result by the officials.
 
-| Celestial body | Given Sample | Succesfully detected |
+| Celestial body | Given Sample | Succesfully detected (error < 300s) |
 |:-:|:-:|:-:|
-|Lunar|76|74|
+|Lunar|76|73|
 |Mars|2|2|
 
 It is worth noting that in many cases, while the events marked by the officials is present, we have also detected seismic events that are not marked by the officials. The results show that our algorithm can successfully detect the seismic events in most cases, and we are confident that it perfectly accomplished the task in a simple manner.s
