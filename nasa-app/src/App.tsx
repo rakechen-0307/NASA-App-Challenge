@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import FileUploadButton from './components/MUI-Fileinput';
 import { Data } from './types/Data';
 import SeismicPlot from './components/SeismicPlot';
+import Papa from 'papaparse';
 
 import ThreeSimulator from './components/ThreeSimulator';
 import { threeController } from './components/ThreeSimulator/ThreeController';
@@ -46,7 +47,7 @@ function App() {
   const [defaultEvent, setDefaultEvent] = useState<string>('');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
 
-  // let defualtData = lunarData;
+  let defualtData = "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0";
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -83,7 +84,7 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
-      // defualtData = lunarData;
+      defualtData = "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0";
       ts = 0.1509;
       std = 2;
       smoothingStd = 600;
@@ -98,7 +99,7 @@ function App() {
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
     }
     else if (planet === "mars") {
-      // defualtData = marsData;
+      defualtData = "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0";
       ts = 0.05;
       std = 1.3;
       smoothingStd = 3e2;
@@ -213,11 +214,20 @@ function App() {
     workerRef.current?.postMessage({ loadedData, params });
   };
 
-  const handleUseDefault = (data: any) => {
+  const handleUseDefault = (dataURL: string) => {
     setUseDefault(!useDefault);
 
-    const loadedData = data.data.map((d: any) => [0, d.x, d.y])
-    handleFileLoad(loadedData);
+    if (!useDefault) {
+      fetch(dataURL)
+        .then(response => response.text())  // Convert response to text
+        .then(jsonData => {
+          const loadedData = JSON.parse(jsonData).data.map((d: any) => [0, d.x, d.y])
+          handleFileLoad(loadedData);
+        })
+        .catch(error => {
+          console.error("Error fetching default data:", error);
+        });
+    }
   }
 
   const handleDefaultValueChange = (event: SelectChangeEvent) => {
