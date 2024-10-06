@@ -1,11 +1,28 @@
 import React, { useState, useEffect, Component } from 'react';
 import { Data } from '../types/Data';
+import { lerp2D, lerp1D } from '../helpers/lerp';
 
 // @ts-ignore
 import CanvasJSReact from '@canvasjs/react-charts';
 
 let CanvasJSChart = CanvasJSReact.CanvasJSChart;
-let slidingSpeed = 100; // samples per frame
+const slidingSpeed = 100; // samples per frame
+const step2Frames = [20, 20]; // step2 animation frames
+const step3Frames = [20, 10, 30]; // step3 animation frames
+const step4Frames = 50; // step4 animation frames for each peak
+const maxMarkerSize = 10; // step3 peak marker size
+
+const commonAxisConfig = {
+  color: "#34dbeb",
+  lineColor: "#34dbeb",
+  tickColor: "#34dbeb",
+  gridColor: "#34dbeb",
+  labelFontColor: "#34dbeb",
+  titleFontColor: "#34dbeb",
+  lineThickness: 2,
+  tickThickness: 1,
+  gridThickness: 1,
+};
 
 interface SeismicPlotProps {
   step: number;
@@ -31,6 +48,17 @@ interface SeismicPlotState {
   endLocations: number[];
   idx: number;
   innerStep: number;
+  // For animation
+  absData: Data[];
+  currentData: Data[];
+  currentLevel: number;
+  currentMarkerSize: number;
+  currentSlopes: Data[][];
+  slopeVisible: boolean;
+  currentPeakLocation: number[];
+  currentPeakIndex: number;
+  maximum: number;
+  minimum: number;
 }
 
 class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
@@ -52,7 +80,18 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       startLocations: props.startLocations,
       endLocations: props.endLocations,
       idx: 0,
-      innerStep: 0
+      innerStep: 0,
+      // animation
+      absData: [],
+      currentData: [],
+      currentLevel: 0,
+      currentMarkerSize: 0,
+      currentSlopes: [],
+      slopeVisible: false,
+      currentPeakLocation: [],
+      currentPeakIndex: 0,
+      maximum: props.data.reduce((max, p) => p.y > max ? p.y : max, props.data[0].y),
+      minimum: props.data.reduce((min, p) => p.y < min ? p.y : min, props.data[0].y),
     };
 
     this.chart = null;
@@ -79,6 +118,10 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       prevProps.slopes !== this.props.slopes ||
       prevProps.level !== this.props.level
     ) {
+      let initialSlopes = [];
+      for (let i = 0; i < this.props.slopes.length; i++) {
+        initialSlopes.push([this.props.slopes[i][1], this.props.slopes[i][1], this.props.slopes[i][1]]);
+      }
       this.setState({
         step: this.props.step,
         data: [...this.props.data],
@@ -89,7 +132,17 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         level: this.props.level,
         startLocations: this.props.startLocations,
         endLocations: this.props.endLocations,
-        idx: 0 // Reset the index when new data comes in
+        idx: 0, // Reset the index when new data comes in
+        innerStep: 0,
+        // Animation
+        currentLevel: 0,
+        currentMarkerSize: 0,
+        currentSlopes: initialSlopes,
+        slopeVisible: false,
+        currentData: this.props.data.map((d) => (d)),
+        absData: this.props.data.map((d) => ({ x: d.x, y: Math.abs(d.y) })),
+        currentPeakLocation: Array(this.props.startLocations.length).fill(0),
+        currentPeakIndex: 0,
       });
     }
 
@@ -99,7 +152,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
   }
 
   updateChart() {
-    const { step, data, nextData, kernel, idx } = this.state;
+    const { step, data, nextData, kernel, idx, currentData, currentLevel, currentMarkerSize, currentPeakIndex, currentPeakLocation, currentSlopes, level, slopes, startLocations, absData } = this.state;
 
     // Bandpass filter logic
     if (step === 1) {
@@ -126,48 +179,103 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
     // Gaussian smoothing logic
     else if (step === 2) {
       let { innerStep } = this.state;
-      if (innerStep === 0) {
-        let velocity = data.map((d) => d.y);
-        velocity = velocity.map(Math.abs);
-        this.setState({
-          data: velocity.map((y, i) => ({ x: data[i].x, y })),
-          innerStep: 1
-        });
+
+      if (innerStep === 0) {        
+        if (idx < step2Frames[0]) {
+          let newData = data.map(d => ({ ...d }));
+          for (let i = 0; i < currentData.length; i++) {
+            newData[i].y = lerp1D(data[i].y, absData[i].y, idx, step2Frames[0]);
+          }
+          this.setState({ idx: idx + 1, currentData: newData });
+        }
+        else
+        {
+          this.setState({ innerStep: 1 });
+        }
+        // let velocity = data.map((d) => d.y);
+        // velocity = velocity.map(Math.abs);
+        // this.setState({
+        //   data: velocity.map((y, i) => ({ x: data[i].x, y })),
+        //   innerStep: 1
+        // });
       } else if (innerStep === 1) {
         if (kernel.length > 0) {
           let currentX = 0;
-          if (idx < data.length && idx < nextData.length) {
-            let stride = idx + slidingSpeed < data.length ? slidingSpeed : data.length - idx;
+          if (idx < currentData.length && idx < nextData.length) {
+            let stride = idx + slidingSpeed < currentData.length ? slidingSpeed : currentData.length - idx;
+            let newData = [...currentData];
             for (let i = 0; i < stride; i++) {
-              data[idx + i] = nextData[idx + i];
+              newData[idx + i] = nextData[idx + i];
             }
-            currentX = data[idx + stride - 1].x;
-            this.setState({ idx: idx + stride });
-          }
-  
-          if (idx < data.length) {
+            currentX = newData[idx + stride - 1].x;
+        
             let diff = currentX - kernel[kernel.length - 1].x;
             for (let i = 0; i < kernel.length; i++) {
               kernel[i].x += diff;
             }
+            this.setState({ idx: idx + stride, currentData: newData });
+          }
+          else {
+            this.setState({ innerStep: 2 });
           }
         }
       } else if (innerStep === 2) {
-        let velocity = data.map((d) => d.y);
+        let velocity = currentData.map((d) => d.y);
         const average: number = velocity.reduce((accumulator, value) => accumulator + value, 0) / velocity.length;
         let centeredVelocity = velocity.map((val) => val - average);
         centeredVelocity = centeredVelocity.map((val) => (val >= 0 ? val : 0));
         this.setState({
-          data: centeredVelocity.map((y, i) => ({ x: data[i].x, y }))
+          currentData: centeredVelocity.map((y, i) => ({ x: currentData[i].x, y })),
+          innerStep: 3
         });
       }
-
+      else {
+        return;
+      }
       this.chart.render();
+    }
+    // Find peaks
+    else if (step === 3) {
+      if (idx < step3Frames[0]) {
+        let newLevel = lerp1D(currentLevel, level, idx, step3Frames[0]);
+        this.setState({ idx: idx + 1, currentLevel: newLevel });
+        this.chart.render();
+      }
+      else if (idx < step3Frames[0] + step3Frames[1]) {
+        let newMarkerSize = lerp1D(currentMarkerSize, maxMarkerSize, idx - step3Frames[0], step3Frames[1]);
+        this.setState({ idx: idx + 1, currentMarkerSize: newMarkerSize });
+        this.chart.render();
+      }
+      else if (idx < step3Frames[0] + step3Frames[1] + step3Frames[2]) {
+        let newSlopes = [...currentSlopes];
+        for (let i = 0; i < slopes.length; i++) {
+          newSlopes[i][0] = lerp2D(currentSlopes[i][0], slopes[i][0], idx - step3Frames[0] - step3Frames[1], step3Frames[2]);
+          newSlopes[i][2] = lerp2D(currentSlopes[i][2], slopes[i][2], idx - step3Frames[0] - step3Frames[1], step3Frames[2]);        
+        }
+        this.setState({ idx: idx + 1, currentSlopes: newSlopes, slopeVisible: true });
+        this.chart.render();
+      }
+    }
+
+    else if (step === 4) {
+      if (currentPeakIndex >= startLocations.length) {
+        return;
+      }
+      if (idx >= step4Frames) {
+        this.setState({ currentPeakIndex: currentPeakIndex + 1, idx: 0 });
+      }
+      else {
+        let newPeakLocation = [...currentPeakLocation];
+        newPeakLocation[currentPeakIndex] = lerp1D(currentPeakLocation[currentPeakIndex], startLocations[currentPeakIndex], idx, step4Frames);
+        this.setState({ idx: idx + 1, currentPeakLocation: newPeakLocation });
+        this.chart.render();
+      }
     }
   }
 
   render() {
-    const { step, data, kernel, peaks, slopes, level, startLocations, endLocations } = this.state;
+    const { step, data, kernel, peaks, slopeVisible, currentData, currentLevel, 
+            currentSlopes, currentMarkerSize, currentPeakLocation, maximum, minimum } = this.state;
 
     // Render based on step value
     if (step === 0) {
@@ -176,26 +284,13 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         backgroundColor: "transparent",
         axisX: { 
           title: 'Time (s)',
-          color: "#34dbeb",
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
         },
         axisY: { 
           title: 'Amplitude (m/s)',
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
+          viewportMinimum: 1.5 * minimum,
+          viewportMaximum: 1.5 * maximum,
         },
         data: [{
           type: 'line',
@@ -218,26 +313,13 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         backgroundColor: "transparent",
         axisX: { 
           title: 'Time (s)',
-          color: "#34dbeb",
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
         },
         axisY: { 
           title: 'Amplitude (m/s)',
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
+          viewportMinimum: 1.5 * minimum,
+          viewportMaximum: 1.5 * maximum,
         },
         data: [
           { type: 'line', dataPoints: data, color: "#34dbeb" },
@@ -259,29 +341,16 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         backgroundColor: "transparent",
         axisX: { 
           title: 'Time (s)',
-          color: "#34dbeb",
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
         },
         axisY: { 
           title: 'Amplitude (m/s)',
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
+          viewportMinimum: minimum,
+          viewportMaximum: maximum,
         },
         data: [
-          { type: 'line', dataPoints: data, color: "#34dbeb" },
+          { type: 'line', dataPoints: currentData, color: "#34dbeb" },
           { type: 'line', dataPoints: kernel, color: "#f0a314" }
         ]
       };
@@ -300,35 +369,20 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         backgroundColor: "transparent",
         axisX: { 
           title: 'Time (s)',
-          color: "#34dbeb",
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
         },
         axisY: {
           title: 'Amplitude (m/s)',
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
-          stripLines: [{ value: level, thickness: 2, color: '#fcc419' }]
+          ...commonAxisConfig,
+          stripLines: [{ value: currentLevel, thickness: 2, color: '#fcc419' }]
         },
         data: [
-          { type: 'line', dataPoints: data, color: "#34dbeb" },
-          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: '#f03e3e' }
+          { type: 'line', dataPoints: data, color: "#34dbeb", visible: true },
+          { type: 'scatter', dataPoints: peaks, markerType: 'circle', color: '#f03e3e', markerSize: currentMarkerSize },
         ]
       };
-      slopes.forEach((slopeData: Data[]) => {
-        options.data.push({ type: 'line', dataPoints: slopeData, color: "#91e817" });
+      currentSlopes.forEach((slopeData: Data[]) => {
+        options.data.push({ type: 'line', dataPoints: slopeData, color: "#91e817", visible: slopeVisible });
       });
 
       return (
@@ -344,37 +398,22 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
         backgroundColor: "transparent",
         axisX: { 
           title: 'Time (s)',
-          color: "#34dbeb",
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
           stripLines: [] as { thickness: number; value: number; color: string }[] },
         axisY: {
           title: 'Amplitude (m/s)',
-          lineColor: "#34dbeb",
-          tickColor: "#34dbeb",
-          gridColor: "#34dbeb",
-          labelFontColor: "#34dbeb",
-          titleFontColor: "#34dbeb",
-          lineThickness: 2,
-          tickThickness: 1,
-          gridThickness: 1,
+          ...commonAxisConfig,
         },
         data: [
           { type: 'line', dataPoints: data, color: "#34dbeb" },
         ]
       };
-      startLocations.forEach((location: number) => {
+      currentPeakLocation.forEach((location: number) => {
         options.axisX.stripLines.push({ thickness: 2, value: location , color: '#f03e3e' });
       });
-      endLocations.forEach((location: number) => {
-        options.axisX.stripLines.push({ thickness: 2, value: location , color: '#91e817' });
-      });
+      // endLocations.forEach((location: number) => {
+      //   options.axisX.stripLines.push({ thickness: 2, value: location , color: '#91e817' });
+      // });
 
       return (
         <div>

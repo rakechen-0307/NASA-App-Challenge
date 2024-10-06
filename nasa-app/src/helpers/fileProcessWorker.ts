@@ -11,7 +11,7 @@ import { Data } from '../types/Data';
 var ndarray = require('ndarray');
 var ops = require('ndarray-ops');
 
-const samples = 10000;
+const samples = 5000;
 
 self.onmessage = function(e) {
     const { loadedData, params } = e.data;
