@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { downsample } from "../../../helpers/downSample";
 
 class Quake {
     planet: THREE.Mesh;

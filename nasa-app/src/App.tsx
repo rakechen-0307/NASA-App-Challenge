@@ -122,11 +122,11 @@ function App() {
   const handlePlanetSwitch = () => {
     if (planet === "lunar") {
       setPlanet("mars");
-      threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS);
+      threeController.triggerUpdatePlanetType(100, 100, Planet.MARS);
     }
     else if (planet === "mars") {
       setPlanet("lunar");
-      threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON);
+      threeController.triggerUpdatePlanetType(100, 100, Planet.MOON);
     }
   }
 
