@@ -46,7 +46,6 @@ class ThreeController {
   planet: THREE.Mesh;
   PLANET_RADIUS: number = 2;
   STATION_RADIUS: number = 0.03;
-  // world: THREE.Mesh;
 
   light: THREE.DirectionalLight;
   // flareLight: THREE.PointLight;
@@ -102,9 +101,9 @@ class ThreeController {
     // record the return id of requestAnimationFrame
     this.initialized = false;
 
-    this.rotationAxis = new THREE.Vector3(0, 1, -1); // Default rotation around the y-axis
+    this.rotationAxis = new THREE.Vector3(1, 1, -0.3).normalize(); // Default rotation around the y-axis
     this.rotationMatrix = new THREE.Matrix4();
-    this.rotationMatrix.makeRotationAxis(this.rotationAxis, -0.002);
+    this.rotationMatrix.makeRotationAxis(this.rotationAxis, -0.01);
     this.offsetPlanetAxis(this.planet);
   }
 
@@ -277,15 +276,16 @@ class ThreeController {
   }
 
   updatePlanetMaterial(planetType: Planet) {
-    // console.log("updatePlanetMaterial", planetType);
+    // Update the current planet type
+    this.currentPlanetType = planetType;
     const newPlanet = this.generatePlanet(planetType);
     this.scene.add(newPlanet);
     this.scene.remove(this.planet);
-    this.planet = newPlanet;
-    this.controls.updatePlanet(this.planet);
 
-    // Update the current planet type
-    this.currentPlanetType = planetType;
+    this.planet = newPlanet;
+    this.offsetPlanetAxis(this.planet);
+
+    this.controls.updatePlanet(this.planet);
 
     // Update station positions
     this.updateStationPositions();
