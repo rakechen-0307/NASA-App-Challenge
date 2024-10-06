@@ -57,7 +57,7 @@ subplot(plot_count, 1, 1);
 plot(time, velocity, "LineWidth", line_width);
 title("Original Signal"); xlabel("Time[s]"); ylabel("Vel[m/s]");
 
-%% Step 1: Bandpass Filter
+%% Step 1: Original Data Through Bandpass Filter
 velocity = conv(velocity_original, bp_filter_coef, 'same');
 
 % plot signal after bandpass
@@ -66,7 +66,7 @@ plot(time, velocity, "LineWidth", line_width)
 title("Step1: Bandpass Filter"); xlabel("Time[s]"); ylabel("Vel[m/s]");
 bp_signal = velocity;
 
-%% Step 2: Envelope Generation
+%% Step 2. Profile Extraction and Smoothing of Data
 
 % Absolute value
 velocity = abs(velocity);
@@ -86,15 +86,15 @@ velocity = velocity .* (velocity >= 0);
 % Plot
 subplot(plot_count, 1, 3);
 plot(time, velocity, "LineWidth", line_width);
-title("Step2: Envelope detection"); xlabel("Time[s]"); ylabel("Mag");
-envelope_generation_signal = velocity;
+title("Step2: Absolute Value + Smoothing + Normalization"); xlabel("Time[s]"); ylabel("Mag");
+profile_generation_signal = velocity;
 
-%% Step 3: Find Peaks + Slopes
+%% Step 3. Peaks from Profile Selected, with Slopes Calculated for Thresholding
 % Find peaks
 [peaks, peak_indices, level] = peaksfinder(velocity, peak_std_num, detect_level);
 subplot(plot_count, 1, 4); hold on;
 plot(time, velocity, "LineWidth", line_width);
-title("Envelope Detection"); xlabel("Time[s]"); ylabel("Mag");
+title("Step3. Find Peaks & Slopes"); xlabel("Time[s]"); ylabel("Mag");
 xline(peak_indices(:, 2) * ts, "LineWidth", line_width, "Color", "red");
 yline(level, "LineWidth", line_width, "Color", "cyan");
 
@@ -127,7 +127,7 @@ for i = 1:size(peak_indices, 1)
 end
 hold off;
 
-%% Step 4: Select the Peaks
+%% Step 4. Peaks Selected as Seismic Event and Onset Time Estimated
 peaks = [];
 end_events = [];
 lower_slopes = [];
@@ -159,7 +159,7 @@ if ~isempty(peaks)
 end
 plot(time, velocity_original, "LineWidth", line_width);
 
-title("Detected Seismic Events"); xlabel("Time[s]"); ylabel("Vel[m/s]");
+title("Step4. Pick Peaks"); xlabel("Time[s]"); ylabel("Vel[m/s]");
 
 %% Store the figure
 if save_figure
