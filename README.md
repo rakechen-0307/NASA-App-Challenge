@@ -20,9 +20,8 @@ The first part is initialization. Since we are using different filter parameters
 The following parts are responsible for loading data and calculating important parameters, such as sampling time. Since our algorithm was designed based on the NASA provided data, only those data with formatting and sampling time same as that given by the NASA Space App Challenge will be interpreted and manipulated correctly.
 
 **Step 1. Bandpass Filter**
-> Target: filter noises out
 
-In this step, we applied a bandpass filter to gather useful information hiding in the noisy signals. The bandwidth are decided based on gathered information and empirical modifications. We take *xa.s12.00.mhz.1970-01-09HR00_evid00007.csv* for example (lunar, test, GradeB): 
+In this step, we applied a bandpass filter to gather useful information hiding in the noisy signals. The bandwidth are decided based on gathered information and empirical modifications: 
 
 ![Filtered data vs unfiltered data](images/original_vs_filtered.png)
 *Figure 1: Original data and filtered data*
@@ -61,7 +60,7 @@ Under this assumption, we can detect the onset to the seismic events by calculat
 
 1. Mimicking the idea of full-width-half-maximum, we find the left and right point where their intensities are of a percentage to the peak. For our task, the percentage are chosen as 30 and 50%.
 2. By connecting the left point to the peak, we obtain the rising edge slope. By connecting the peak to the right point, we obtain the falling edge slope.
-3. Calculate the ratio of the latter to the former. If the absolute value is above a certain value, it means we have a gentle falling edge. We mark this as a seismic event. The slopes are marked as green dash line in *Fig. 3*.
+3. Calculate the ratio of the former to the latter. If the absolute value is above a certain value, it means we have a gentle falling edge. We mark this as a seismic event. The slopes are marked as green dash line in *Fig. 3*.
 4. The onset and ending to the seismic event is further obtained by extending the two slopes and find their intercept to the horizontal axis.
 
 ![General envelope detection result](images/envelope_detection.png)
