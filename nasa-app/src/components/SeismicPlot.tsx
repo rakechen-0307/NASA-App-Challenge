@@ -282,6 +282,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       const options = {
         theme: "dark1",
         backgroundColor: "transparent",
+        height: 200,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -311,6 +312,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       const options = {
         theme: "dark1",
         backgroundColor: "transparent",
+        height: 200,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -339,6 +341,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       const options = {
         theme: "dark1",
         backgroundColor: "transparent",
+        height: 200,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -367,6 +370,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       const options = {
         theme: "dark1",
         backgroundColor: "transparent",
+        height: 200,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,
@@ -396,6 +400,7 @@ class SeismicPlot extends Component<SeismicPlotProps, SeismicPlotState> {
       const options = {
         theme: "dark1",
         backgroundColor: "transparent",
+        height: 300,
         axisX: { 
           title: 'Time (s)',
           ...commonAxisConfig,

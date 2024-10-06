@@ -1,5 +1,17 @@
+html, body {
+  overflow: hidden;
+}
+
 .button-flex {
   flex: auto;
+}
+
+.data-div {
+  position: absolute;
+  width: 55vw;
+  height: 70vh;
+  left: 2vw;
+  bottom: 1vh;
 }
 
 .prompt-thin {
