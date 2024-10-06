@@ -42,7 +42,7 @@ function App() {
   });
   const [defaultEvent, setDefaultEvent] = useState<string>('lunar 1');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
-  const [dataUrl, setDataUrl] = useState<string>("https://dl.dropboxusercontent.com/scl/fi/x8aosw2xe93uvuc7098in/lunar1.json?rlkey=ucyfp4iilinf7evzfkfdpq22z&st=yx84flln&dl=0");
+  const [dataUrl, setDataUrl] = useState<string>("https://storage.googleapis.com/nasa-app/data/lunar1.json");
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [processStatus, setProcessStatus] = useState<string>("");
   const [isLocked, setIsLocked] = useState<boolean>(true);
@@ -86,14 +86,14 @@ function App() {
     "mars 3"
   ];
   const urls_lunar = [
-    "https://dl.dropboxusercontent.com/scl/fi/x8aosw2xe93uvuc7098in/lunar1.json?rlkey=ucyfp4iilinf7evzfkfdpq22z&st=yx84flln&dl=0",
-    "https://dl.dropboxusercontent.com/scl/fi/vw7wr659im9k0v6i4dqqd/lunar2.json?rlkey=1j0x8vqa6959tv1ades6bvckp&st=yhqnv7yq&dl=0",
-    "https://dl.dropboxusercontent.com/scl/fi/c8p4843893qi0tej35f12/lunar3.json?rlkey=kr8gajp87srfovtwtk0ixorse&st=ibb0wuqw&dl=0"
+    "https://storage.googleapis.com/nasa-app/data/lunar1.json",
+    "https://storage.googleapis.com/nasa-app/data/lunar2.json",
+    "https://storage.googleapis.com/nasa-app/data/lunar3.json"
   ];
   const urls_mars = [
-    "https://dl.dropboxusercontent.com/scl/fi/5v263ker3dto5n39lcfs5/mars1.json?rlkey=p4lk834b4agyc6ikhudnnzdmb&st=hmkormij&dl=0",
-    "https://dl.dropboxusercontent.com/scl/fi/snzddn9exxtg6deth52xj/mars2.json?rlkey=5pxzt0obfaifnc30tubwhhu19&st=0hcwgdkn&dl=0",
-    "https://dl.dropboxusercontent.com/scl/fi/lx85s2c9ihaxroi9vm6kv/mars3.json?rlkey=0fgova0lq5j0b2l6rtzex8g9p&st=i9hrkt0b&dl=0"
+    "https://storage.googleapis.com/nasa-app/data/mars1.json",
+    "https://storage.googleapis.com/nasa-app/data/mars2.json",
+    "https://storage.googleapis.com/nasa-app/data/mars3.json"
   ];
 
   useEffect(() => {
@@ -112,6 +112,7 @@ function App() {
         -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
       setDefaultEvent("lunar 1");
+      setDataUrl("https://storage.googleapis.com/nasa-app/data/lunar1.json")
       setProcessedData({
         data: [],
         filteredData: [],
@@ -139,6 +140,7 @@ function App() {
         -0.124987344, -0.049134331, 0.005371116, -0.012730875, -0.059643647, -0.069394178,
         -0.034209679, -0.001507097, -0.006810152, -0.032765272, -0.039009518, -0.015753723);
       setDefaultEvent("mars 1");
+      setDataUrl("https://storage.googleapis.com/nasa-app/data/mars1.json");
       setProcessedData({
         data: [],
         filteredData: [],
@@ -297,7 +299,7 @@ function App() {
           <Grid item xs={12} md={5}>
             <Stack direction="row" spacing={2} alignItems="center" justifyContent="flex-end">
               <Typography variant="h4" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "italic", fontWeight: 300, color: "white" }}>
-                by Reaching Stars
+                by Reaching STAR
               </Typography>
               <Stack direction="row" spacing={1}>
                 <IconButton aria-label="delete" sx={{ color: "white" }} component="a" href="https://github.com/rakechen-0307/NASA-App-Challenge?fbclid=IwY2xjawFvc2JleHRuA2FlbQIxMAABHQQnToef05i99XLpRZ4nb9kwILYoNzaflfKjx1CbcBVH68vsVSnH1WHpoA_aem_ELvaLK6IJoU0ExaJGrmjng">
@@ -308,7 +310,7 @@ function App() {
           </Grid>
         </Grid>
         <Typography variant="h6" sx={{ fontFamily: 'Prompt, sans-serif', fontStyle: "normal", fontWeight: 250, color: "white", mb: 1 }}>
-          This is a demo of our seismic waveform detection algorithm. Upload a CSV file and choose the step you want to observe !
+          This is a demo of our seismic waveform detection algorithm. Load data and choose the step you want to observe !
         </Typography>
 
         {/* Steps */}
@@ -378,7 +380,7 @@ function App() {
                   setProcessStatus={setProcessStatus}
                 />
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt: -0.4 }} size="small">
-                  <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Selected Event</InputLabel>
+                  <InputLabel sx={{ color: "#b3dce6" }} id="demo-default-event-label">Default Data</InputLabel>
                   <Select
                     id="demo-default-event"
                     value={defaultEvent}
@@ -410,7 +412,7 @@ function App() {
                 <Button variant="contained"
                   sx={{ backgroundColor: "#3c8eaa", color: "white" }}
                   onClick={() => handleUseDefault(dataUrl)} disabled={isLoaded}>
-                  Load Default Event
+                  Load Default Data
                 </Button>
                 <h3 className='loading-info'>{processStatus}</h3>
               </Grid>
