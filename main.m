@@ -8,7 +8,7 @@ target_body = 'lunar';
 % Give filepath (absolute or relative are both fine, must be .csv)
 filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\lunar\training\data\S12_GradeA\xa.s12.00.mhz.1970-03-25HR00_evid00003.csv";
 % Save figure? (true: save)
-save_figure = true;
+save_figure = false;
 
 % If save figure, assign its location. DO NOT add file extension (ex. .png)
 figure_save_location = "D:\NASA_Hackathon\NASA-App-Challenge\images\full_result";
