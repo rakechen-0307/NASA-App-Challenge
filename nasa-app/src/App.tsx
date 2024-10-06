@@ -341,26 +341,24 @@ function App() {
               <p className='description-text'>Choose a default event or upload your own CSV file.</p>
               <Grid item>
                 <FileUploadButton onFileLoad={handleFileLoad} />
-                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white" }} size="small">
+                <FormControl variant="outlined" sx={{ m: 1, minWidth: 120, color: "white", mt:-0.4 }} size="small">
                   <Select
-                    labelId="default-event"
                     id="demo-default-event"
                     value={defaultEvent}
                     onChange={handleDefaultValueChange}
-                    label="Age"
                     sx={{
                       color: "white",
                       '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white', // Change border color to white
+                        borderColor: "#666d75", // Change border color to white
                       },
                       '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white', // Change border color on hover
+                        borderColor: '#666d75', // Change border color on hover
                       },
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white', // Change border color when focused
+                        borderColor: '#666d75', // Change border color when focused
                       },
                       '& .MuiSelect-icon': {
-                        color: 'white', // Change the dropdown icon color to white
+                        color: '#666d75', // Change the dropdown icon color to white
                       }
                     }}
                   >
