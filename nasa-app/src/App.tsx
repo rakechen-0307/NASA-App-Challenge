@@ -41,7 +41,7 @@ function App() {
   });
   const [defaultEvent, setDefaultEvent] = useState<string>('lunar 1');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
-  const [dataUrl, setDataUrl] = useState<string>("https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0");
+  const [dataUrl, setDataUrl] = useState<string>("https://dl.dropboxusercontent.com/scl/fi/x8aosw2xe93uvuc7098in/lunar1.json?rlkey=ucyfp4iilinf7evzfkfdpq22z&st=yx84flln&dl=0");
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [processStatus, setProcessStatus] = useState<string>("");
   const [isLocked, setIsLocked] = useState<boolean>(true);
@@ -77,18 +77,22 @@ function App() {
   const events_lunar = [
     "lunar 1",
     "lunar 2",
+    "lunar 3"
   ];
   const events_mars = [
     "mars 1",
     "mars 2",
+    "mars 3"
   ];
   const urls_lunar = [
-    "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0",
-    "https://dl.dropboxusercontent.com/scl/fi/eah4lmkmdp81mflmdyfzm/lunar.json?rlkey=9honf2csnlkuwu9aeelidpqa4&st=m27i473i&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/x8aosw2xe93uvuc7098in/lunar1.json?rlkey=ucyfp4iilinf7evzfkfdpq22z&st=yx84flln&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/vw7wr659im9k0v6i4dqqd/lunar2.json?rlkey=1j0x8vqa6959tv1ades6bvckp&st=yhqnv7yq&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/c8p4843893qi0tej35f12/lunar3.json?rlkey=kr8gajp87srfovtwtk0ixorse&st=ibb0wuqw&dl=0"
   ];
   const urls_mars = [
-    "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0",
-    "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/5v263ker3dto5n39lcfs5/mars1.json?rlkey=p4lk834b4agyc6ikhudnnzdmb&st=hmkormij&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/snzddn9exxtg6deth52xj/mars2.json?rlkey=5pxzt0obfaifnc30tubwhhu19&st=0hcwgdkn&dl=0",
+    "https://dl.dropboxusercontent.com/scl/fi/lx85s2c9ihaxroi9vm6kv/mars3.json?rlkey=0fgova0lq5j0b2l6rtzex8g9p&st=i9hrkt0b&dl=0"
   ];
 
   useEffect(() => {
