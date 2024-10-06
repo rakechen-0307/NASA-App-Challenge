@@ -250,9 +250,9 @@ function App() {
           endLocations={processedData.endLocations}
         />}
 
-        <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
+        {/* <button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>
         <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MARS)}>Toggle Mars</button>
-        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button>
+        <button onClick={() => threeController.triggerUpdatePlanetMaterial(100, 100, Planet.MOON)}>Toggle Moon</button> */}
       </Box>
 
       {/* Footer */}
