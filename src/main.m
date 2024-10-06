@@ -6,12 +6,12 @@ clear; clc; close all
 target_body = 'lunar';
 
 % Give filepath (absolute or relative are both fine, must be .csv)
-filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\lunar\test\data\S12_GradeB\xa.s12.00.mhz.1970-01-09HR00_evid00007.csv";
-% Save figure? (true: save
+filepath = "D:\NASA_Hackathon\NASA-App-Challenge\data\lunar\training\data\S12_GradeA\xa.s12.00.mhz.1971-04-13HR02_evid00029.csv";
+% Save figure? (true: save)
 save_figure = false;
 
 % If save figure, assign its location. DO NOT add file extension (ex. .png)
-figure_save_location = "D:\NASA_Hackathon\NASA-App-Challenge\hello";
+figure_save_location = "D:\NASA_Hackathon\NASA-App-Challenge\images\full_result";
 
 %% Initialize hyperparameters
 
@@ -20,12 +20,15 @@ if strcmp(target_body, 'lunar')
     peak_std_num = 2;               % number of std to be recognized as a peak
     slope_ratio_threshold = 1.5;    %
     detect_level = 0.3;
+    delay_compensate = 549;
     load ./filter/lunar_bpf.mat
+    compensate_ratio = 1.1427;
 else
     smoothing_std = 3e2;            % std of the Gaussian smoothing
     peak_std_num = 1.3;             % number of std to be recognized as a peak (recommend 2~3)
     slope_ratio_threshold = 1.5;    %
     detect_level = 0.3;
+    delay_compensate = 0;
     load ./filter/mars_bpf.mat
 end
 
@@ -86,7 +89,7 @@ envelope_generation_signal = velocity;
 [peaks, peak_indices, level] = peaksfinder(velocity, peak_std_num, detect_level);
 subplot(plot_count, 1, 4); hold on;
 plot(time, velocity, "LineWidth", line_width);
-title("Step3: Find Peaks & Slopes"); xlabel("Time[s]"); ylabel("Mag");
+title("Envelope Detection"); xlabel("Time[s]"); ylabel("Mag");
 xline(peak_indices(:, 2) * ts, "LineWidth", line_width, "Color", "red");
 yline(level, "LineWidth", line_width, "Color", "cyan");
 
@@ -120,6 +123,7 @@ end
 hold off;
 
 %% Step 4: Select the Peaks
+figure; hold on
 peaks = [];
 end_events = [];
 lower_slopes = [];
@@ -132,7 +136,7 @@ for i = 1:size(peak_indices, 1)
         upper_slopes = [upper_slopes right_slopes(i)];
     end
 end
-subplot(plot_count, 1, 5); hold on;
+% subplot(plot_count, 1, 5); hold on;
 ylim([min(velocity_original), max(velocity_original)]);
 
 if ~isempty(peaks)
@@ -151,7 +155,7 @@ if ~isempty(peaks)
 end
 plot(time, velocity_original, "LineWidth", line_width);
 
-title("Step4: Pick Peaks"); xlabel("Time[s]"); ylabel("Vel[m/s]");
+title("Detected Seismic Events"); xlabel("Time[s]"); ylabel("Velocity[m/s]");
 
 %% Store the figure
 if save_figure

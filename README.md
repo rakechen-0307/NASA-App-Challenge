@@ -7,13 +7,13 @@ Simply change which celestial body your interested seismic event is on, and make
 Have a nice day!
 
 ## About App
-We've implemented an interactive MATLAB app for you to understand our project more, and you can check it out in *app* folder. However, it requires *MATLAB Runtime R2024a* to execute. If you're not sure whether your computer has that, select **REACHING_STAR_demo_installer.exe** to install both the app and the compiler.
-If your computer already has the compiler, you can directly run the app, **REACHING_STAR_demo.exe**
+We've implemented an interactive MATLAB app for you to understand our project more, and you can check it out in *app* folder. However, it requires *MATLAB Runtime R2024a* to execute. If you're not sure whether your computer has that, select **app/DEMO.exe** to install both the app and the compiler.
+If your computer already has the compiler, you can directly run the app, **app/INSTALL.exe**. There exists another simple README file for you to understand how the app works.
 
 Unfortunately, this app can only run on Windows due to the limitation of MATLAB.
 
 ## Website demo
-You can all access our interactive website.
+You can also access our [interactive website](https://rakechen-0307.github.io/detect-the-moooove) to further understand how our algorithm works.
 
 ## File format
 For both app and website demo, **you must follow the following format and store as csv file**.
