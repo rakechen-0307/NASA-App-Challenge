@@ -8,7 +8,7 @@ Have a nice day!
 
 ## About App
 We've implemented an interactive MATLAB app for you to understand our project more, and you can check it out in *app* folder. However, it requires *MATLAB Runtime R2024a* to execute. If you're not sure whether your computer has that, select **REACHING_STAR_demo_installer.exe** to install both the app and the compiler.
-If your computer already has the compiler, you can directly run the app, *REACHING_STAR_demo.exe*
+If your computer already has the compiler, you can directly run the app, **REACHING_STAR_demo.exe**
 
 Unfortunately, this app can only run on Windows due to the limitation of MATLAB.
 
