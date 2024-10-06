@@ -96,8 +96,4 @@ We've applied our algorithm to given training data for evaluation with the follo
 |Lunar|76|73|
 |Mars|2|2|
 
-It is worth noting that in many cases, while the events marked by the officials is present, we have also detected seismic events that are not marked by the officials. The results show that our algorithm can successfully detect the seismic events in most cases, and we are confident that it perfectly accomplished the task in a simple manner.s
-
-
-
-
+It is worth noting that in many cases, while the events marked by the officials is present, we have also detected seismic events that are not marked by the officials. The results show that our algorithm can successfully detect the seismic events in most cases, and we are confident that it perfectly accomplished the task in a simple manners.

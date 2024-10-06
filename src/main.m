@@ -159,7 +159,7 @@ if ~isempty(peaks)
 end
 plot(time, velocity_original, "LineWidth", line_width);
 
-title("Detected Seismic Events"); xlabel("Time[s]"); ylabel("Velocity[m/s]");
+title("Detected Seismic Events"); xlabel("Time[s]"); ylabel("Vel[m/s]");
 
 %% Store the figure
 if save_figure
