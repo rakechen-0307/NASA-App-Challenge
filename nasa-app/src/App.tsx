@@ -41,7 +41,7 @@ function App() {
     startLocations: [],
     endLocations: []
   });
-  const [defaultEvent, setDefaultEvent] = useState<string>('');
+  const [defaultEvent, setDefaultEvent] = useState<string>('lunar 1');
   const [uploadMenu, setUploadMenu] = useState<boolean>(false);
   const [dataUrl, setDataUrl] = useState<string>('');
 
@@ -105,6 +105,7 @@ function App() {
         0.437803402, 0.151489773, -0.224228809, -0.170557003, 0.002012645,
         -0.034768745, -0.058782592, 0.038977124, 0.055068256, 0.002031613,
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
+      setDefaultEvent("lunar 1");
     }
     else if (planet === "mars") {
       defualtData = "https://dl.dropboxusercontent.com/scl/fi/l5l0rzzbznkn3zui10dl1/mars.json?rlkey=idh8q7bh5290kozsy5z99er6n&st=fb17fqnm&dl=0";
@@ -119,6 +120,7 @@ function App() {
         -0.110448191, 0.04424677, 0.249863191, 0.345144188, 0.249863191, 0.04424677, -0.110448191,
         -0.124987344, -0.049134331, 0.005371116, -0.012730875, -0.059643647, -0.069394178,
         -0.034209679, -0.001507097, -0.006810152, -0.032765272, -0.039009518, -0.015753723);
+      setDefaultEvent("mars 1");
     }
   }, [planet]);
 
