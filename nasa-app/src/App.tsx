@@ -17,6 +17,9 @@ import { MaterialUISwitch } from './components/switches';
 
 import { Planet } from './types/Three';
 
+import lunarData from './data/lunar.json';
+import marsData from './data/mars.json';
+
 function App() {
   const [step, setStep] = useState<number>(0);
   const [planet, setPlanet] = useState<string>("lunar");
@@ -32,7 +35,10 @@ function App() {
     startLocations: [],
     endLocations: []
   });
+  const [fadeIn, setFadeIn] = useState<boolean>(false);  // descriptions' fade in effect
+  const [useDefault, setUseDefault] = useState<boolean>(false);
 
+  let defualtData = lunarData;
   let ts = 0.1509;
   let std = 2;
   let smoothingStd = 600;
@@ -55,6 +61,7 @@ function App() {
 
   useEffect(() => {
     if (planet === "lunar") {
+      defualtData = lunarData;
       ts = 0.1509;
       std = 2;
       smoothingStd = 600;
@@ -69,6 +76,7 @@ function App() {
         0.026547969, 0.047658812, -4.72E-03, -0.021013882, 0.005414803, -0.015468212);
     }
     else if (planet === "mars") {
+      defualtData = marsData;
       ts = 0.05;
       std = 1.3;
       smoothingStd = 3e2;
@@ -84,8 +92,14 @@ function App() {
   }, [planet]);
 
   useEffect(() => {
-    setDescription(descriptions[step - 1]);
-  }, [step])
+    if (step > 0) {
+      setFadeIn(false); // Trigger fade out
+      setTimeout(() => {
+        setDescription(descriptions[step - 1]);
+        setFadeIn(true);
+      }, 300); // Trigger fade in after small delay
+    }
+  }, [step]);
 
   const quakeIntervalRef = useRef<any>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -182,6 +196,11 @@ function App() {
     workerRef.current?.postMessage({ loadedData, params });
   };
 
+  const handleUseDefault = (data: any) => {
+    setUseDefault(!useDefault);
+    handleFileLoad(data.data);
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <ThreeSimulator />
@@ -215,7 +234,14 @@ function App() {
         {/* Steps */}
         <Grid container justifyContent="left" spacing={1} sx={{ mb: 4 }}>
           <Grid item>
-            <FileUploadButton onFileLoad={handleFileLoad} />
+            <FileUploadButton onFileLoad={handleFileLoad} isDisabled={useDefault} />
+          </Grid>
+          <Grid item>
+            <Button variant="contained"
+              sx={{ backgroundColor: "#3c8eaa", color: "white" }}
+              onClick={() => handleUseDefault(defualtData)}>
+              {useDefault ? "Upload CSV" : "Use Default"}
+            </Button>
           </Grid>
           <Grid item>
             <Button variant="contained"
@@ -262,7 +288,9 @@ function App() {
           />}
         </div>
         <div className='description'>
-            <p className='text'>{ description }</p>
+          <Fade in={fadeIn} timeout={500}>
+            <Typography variant="body1" className="description-text">{description}</Typography>
+          </Fade>
         </div>
 
         {/*<button onClick={() => threeController.triggerQuake(0.1, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1, 1)}>Trigger Quake</button>*/}

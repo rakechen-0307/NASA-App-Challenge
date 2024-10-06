@@ -16,12 +16,12 @@ html, body {
   height: 20vh;
   left: 3vw;
   top: 65vh;
-  padding: 10px;
+  padding: 20px;
   border: 2px solid rgba(210, 210, 210, 0.601);
   border-radius: 5px;
 }
 
-.text {
+.description-text {
   color: white;
 }
 
